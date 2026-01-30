@@ -53,7 +53,7 @@ communities working to enhance climate resiliency.
 ## Journal reference
 Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty, C., Minor-Terrell, D., Zaitchik, B., Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore. (Sumbitted to Sustainable Cities and Society Febrary 2026)
 
-## Code reference
+### Code reference
 
 ## Data reference
 
@@ -67,7 +67,6 @@ Spangler, A. (2026). Baltimore SWMM input file [Data set]. Zenodo. https://doi.o
 | EPA SWMM      | 5.2.4         | [EPA SWMM Repository](https://github.com/USEPA/Stormwater-Management-Model.git)  | -  | 
 | PCSWMM        | 7.7           | [PCSWMM Free Educational Lisence](https://www.pcswmm.com/Grant)  | -  |
 | PySWMM        | 2.1.0         | [Pyswmm Repository](https://github.com/pyswmm/pyswmm.git)  | [https://doi.org/10.21105/joss.02292](https://doi.org/10.21105/joss.02292)  |
-| ------------- | ------------- | ------------- | ------------- |
 
 
 ## Reproduce my experiment
