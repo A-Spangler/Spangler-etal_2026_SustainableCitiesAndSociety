@@ -1,92 +1,92 @@
 [![DOI](https://zenodo.org/badge/265254045.svg)](https://zenodo.org/doi/10.5281/zenodo.10442485)
 
-<!-- Get rid of the metarepo instructions (the two sections below this) once you're done. -->
+# Spangler-etal_2026_SustainableCitiesAndSociety
 
-# metarepo
-## [Check out the website for instructions](https://immm-sfa.github.io/metarepo)
-`metarepo` is short for meta-repository, a GitHub repository that contains instructions to reproduce results in a published work. This repo is a template for creating your own metarepo.
+**Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore**
 
-## Purpose
-A meta-repository creates a single point of access for someone to find all of the components that were used to create a published work for the purpose of reproducibility. This repository should contain references to all minted data and software as well as any ancillary code used to transform the source data, create figures for your publication, conduct the experiment, and / or execute the contributing software.
+Ava Spangler<sup>1,2\*</sup>, Antonia Hadjimichael<sup>1,2</sup>, Carlin Blash<sup>1,</sup>, Mahsa Adib<sup>3,4\*</sup>, Hong Wu<sup>3</sup>, Mark Cameron<sup>5</sup>, Claire Welty<sup>6,7</sup>, Doris Minor-Terrell<sup>8\*</sup>, Benjamin Zaitchik<sup>9</sup>,
 
-<!-- Get rid of the metarepo instructions (the two sections above this) once you're done. -->
+<sup>1 </sup>The Pennsylvania State University Earth and Environmental Systems Institute, University Park, PA, USA
 
-# lastname-etal_year_journal
+<sup>2 </sup> The Pennsylvania State University Earth and Environmental Systems Institute, University Park PA, USA
 
-**your Paper Title here (once published, include a link to the text)**
+<sup>3 </sup> The Pennsylvania State University Department of Landscape Architecture, University Park, PA, USA
 
-First Last<sup>1\*</sup>, First Last<sup>1</sup>,  and First Last<sup>1, 2</sup>
+<sup>4 </sup> Michigan State University School of Planning, Design and Construction, East Lansing, MI, USA
 
-<sup>1 </sup>Pacific Northwest National Laboratory, Richland, WA, USA.
+<sup>5 </sup> Baltimore City Department of Public Works, Baltimore, MD, USA
+<sup>6 </sup> University of Maryland Baltimore County Department of Chemical, Biochemical and Environmental Engineering, Baltimore, MD, USA
 
-<sup>2 </sup> Institute for Energy Analysis, Oak Ridge Associated Universities, Washington, DC, USA
+<sup>7 </sup> University of Maryland Baltimore County Center for Urban Environmental Research and Education, Baltimore, MD, USA
 
-\* corresponding author:  email@myorg.gov
+<sup>8 </sup> Broadway East Community & Community Development Corporation, Baltimore, MD, USA
+
+<sup>9 </sup>Johns Hopkins University Department of Earth and Planetary Sciences, Baltimore, MD, USA
+
+\* corresponding author:  aas6791@psu.edu
 
 ## Abstract
-_your abstract here_
+The intensification of the hydrologic cycle due to climate change poses a
+threat to urban areas with aging and under-sized water infrastructure sys-
+tems which cannot adequately manage intense storm events. In the City of
+Baltimore, Maryland, stormwater infrastructure is challenged by stormwater
+(pluvial) flooding, which has damaged housing and disrupted transportation
+networks. In this study, a combination of community engagement and hydro-
+logic modeling is applied to develop and assess prospective urban flooding
+adaptations. Community engagement drives the development of an urban
+flooding model (EPA Storm Water Management Model) for the Baltimore
+Harbor watershed, integrating complex surface and subsurface stormwater in-
+frastructure data and community insights. Adaptations of interest to stake-
+holders, including green and gray infrastructure strategies, are simulated.
+Enhanced infrastructure maintenance is the most effective adaptation for
+reducing flood depths, but has varied effects across the watershed. Spatially-
+concentrated greening provides limited benefit to the watershed as a whole,
+but moderate benefit in community priority areas. Together, these adap-
+tations have the potential to reduce flood depths by as much as 58% in
+select locations, which would greatly reducing property damage and trans-
+portation impacts, which are primary concerns of stakeholders. This work
+builds on the growing body of collaborative modeling literature and shows
+that community-engaged research can increase the relevance and credibility
+of model representations, resulting in more relevant and usable insights for
+communities working to enhance climate resiliency.
 
 ## Journal reference
-_your journal reference_
+Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty, C., Minor-Terrell, D., Zaitchik, B., Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore. (Sumbitted to Sustainable Cities and Society Febrary 2026)
 
 ## Code reference
-References for each minted software release for all code involved.  
-
-These are generated by Zenodo automatically when conducting a release when Zenodo has been linked to your GitHub repository. The Zenodo references are built by setting the author order in order of contribution to the code using the author's GitHub username.  This citation can, and likely should, be edited without altering the DOI.
-
-If you have modified a codebase that is outside of a formal release, and the modifications are not planned on being merged back into a version, fork the parent repository and add a `.<shortname>` to the version number of the parent and construct your own name.  For example, `v1.2.5.hydro`.
-
-_your software reference here_
 
 ## Data reference
 
 ### Input data
-Reference for each minted data source for your input data.  For example:
 
-Human, I.M. (2021). My input dataset name [Data set]. DataHub. https://doi.org/some-doi-number
+Spangler, A. (2026). Baltimore SWMM input file [Data set]. Zenodo. https://doi.org/some-doi-number
 
-_your input data references here_
+## Contributing Modeling Software  
+| Software      | Version       | Repository    | DOI           |
+| ------------- | ------------- | ------------- | ------------- |
+| EPA SWMM      | 5.2.4         | [EPA SWMM Repository](https://github.com/USEPA/Stormwater-Management-Model.git)  | -  | 
+| PCSWMM        | 7.7           | [PCSWMM Free Educational Lisence](https://www.pcswmm.com/Grant)  | -  |
+| PySWMM        | 2.1.0         | [Pyswmm Repository](https://github.com/pyswmm/pyswmm.git)  | [https://doi.org/10.21105/joss.02292](https://doi.org/10.21105/joss.02292)  |
+| ------------- | ------------- | ------------- | ------------- |
 
-### Output data
-Reference for each minted data source for your output data.  For example:
-
-Human, I.M. (2021). My output dataset name [Data set]. DataHub. https://doi.org/some-doi-number
-
-_your output data references here_
-
-
-## Contributing modeling software
-| Model | Version | Repository Link | DOI |
-|-------|---------|-----------------|-----|
-| model 1 | version | link to code repository | link to DOI dataset |
-| model 2 | version | link to code repository | link to DOI dataset |
-| component 1 | version | link to code repository | link to DOI dataset |
 
 ## Reproduce my experiment
 Fill in detailed info here or link to other documentation to thoroughly walkthrough how to use the contents of this repository to reproduce your experiment. Below is an example.
 
 
 1. Install the software components required to conduct the experiment from [contributing modeling software](#contributing-modeling-software)
-2. Download and install the supporting [input data](#input-data) required to conduct the experiment
-3. Run the following scripts in the `workflow` directory to re-create this experiment:
+2. Install all package dependencies listed in environment.yml using conda env create --file environment.yml
+3. Activate environment using conda activate Spangler-etal_2026_SustainableCitiesAndSociety
+4. Download and install the supporting [input data](#input-data) required to conduct the experiment
+5. Run the following scripts in the `workflow` directory to re-create this experiment:
 
 | Script Name | Description | How to Run |
 | --- | --- | --- |
-| `step_one.py` | Script to run the first part of my experiment | `python3 step_one.py -f /path/to/inputdata/file_one.csv` |
-| `step_two.py` | Script to run the second part of my experiment | `python3 step_two.py -o /path/to/my/outputdir` |
-
-4. Download and unzip the [output data](#output-data) from my experiment 
-5. Run the following scripts in the `workflow` directory to compare my outputs to those from the publication
-
-| Script Name | Description | How to Run |
-| --- | --- | --- |
-| `compare.py` | Script to compare my outputs to the original | `python3 compare.py --orig /path/to/original/data.csv --new /path/to/new/data.csv` |
+| `BSEC_SWMM_model.py` | Script to run the first part of my experiment | `python3 BSEC_SWMM_model.py -f /path/to/inputdata/BSEC_SWMM_model.inp` |
 
 ## Reproduce my figures
 Use the scripts found in the `figures` directory to reproduce the figures used in this publication.
 
 | Figure Number(s) | Script Name | Description | How to Run |
 | --- | --- | --- | --- |
-| 1, 2 | `generate_plot.py` | Description of figure, ie. "Plots the difference between our two scenarios" | `python3 generate_plot.py -input /path/to/inputs -output /path/to/outuptdir` |
-| 3 | `generate_figure.py` | Description of figure, ie. "Shows how the mean and peak differences are calculated" | `python3 generate_figure.py -input /path/to/inputs -output /path/to/outuptdir` |
-
+| 1-6 | `BSEC_SWMM_Plotter.py` | Plots all figures in the journal aricle | `python3 BSEC_SWMM_Plotter.py -input /path/to/inputs -output /path/to/outuptdir` |
