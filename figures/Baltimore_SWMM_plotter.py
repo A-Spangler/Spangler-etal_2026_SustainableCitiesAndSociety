@@ -9,7 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-# DEFINITIONS ----------------------------------------------------------------------------------------------------------
+# FIGURE 6 ----------------------------------------------------------------------------------------------------------
 def depth_stackplot(relative_depth_df, name):
     fig, ax = plt.subplots(figsize=(10, 4))
     plot_cols = ['V', 'I', 'V&I']
@@ -102,6 +102,8 @@ def volume_stackplot(relative_vol_df, name):
     save_path = f'../figures/{name}_relative_stackplot_volume_V23.png'
     plt.savefig(save_path)
 
+# FIGURE 5 -------------------------------------------------------------------------------------------------------------
+# write files for importing to GIS here
 
 # EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":

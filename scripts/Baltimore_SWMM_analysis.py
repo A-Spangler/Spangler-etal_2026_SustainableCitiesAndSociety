@@ -132,42 +132,9 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
         print(f"  Peak Absolute Change: {max_val:.3f} m at {max_node} (Base: {base_depth_abs:.3f} m, Change: {pct_change_abs:.1f}%)")
         print(f"  Peak Increase: {incr:.3f} m at {incr_node} (Base: {base_depth_incr:.3f} m, Change: {pct_change_incr:.1f}%)")
 
-    savepath1 = f'../outputdata{storm_name}_V23_AllNodes_MaxDepth.csv'
-    savepath2 = f'../outputdata/{storm_name}_V23_AllNodes_RelativeDepth.csv'
-    max_depth_df.to_csv(savepath1)
-    relative_change_in_depth.to_csv(savepath2)
-    return max_depth_df, relative_change_in_depth  # relative means relative to base case
-
-def find_max_flow(processed_df, node_neighborhood_df, storm_name):
-    # find maxes for each node flowrate depth, each scenario
-    grouped_df = processed_df.groupby(level=0).max()
-
-    # select flow cols
-    flow_cols = [col for col in grouped_df.columns if col.endswith('_flow')]
-    max_flow_df = grouped_df[flow_cols]
-
-    # make scenarios be column headers, keep node names
-    max_flow_df = max_flow_df.reset_index()
-    max_flow_df = max_flow_df.set_index('scenario').T
-    max_flow_df = max_flow_df.reset_index().rename(columns={'index': 'node_name'})
-    # assign neighborhoods to node name by extracting node name and mapping dict
-    max_flow_df['node_id'] = max_flow_df['node_name'].str.extract(r'([^_]+)')[0] # extract all characters before the underscore to drop _flow
-    max_flow_df['neighborhood'] = max_flow_df['node_id'].map(lambda x: node_neighborhood[x][0])
-    max_flow_df['historic_stream'] = max_flow_df['node_id'].map(lambda x: node_neighborhood[x][1])
-
-    # define new df showing relative change from base case
-    # drop node names for subtraction, then add back in
-    relative_change_in_flow = max_flow_df.iloc[:, 1:5].copy() #TODO fix harcoding in the column indicies for subtraction, changes w scenarios
-    relative_change_in_flow = relative_change_in_flow.sub(max_flow_df['Base'], axis = 0)
-    relative_change_in_flow['node_name'] = max_flow_df['node_name']
-    relative_change_in_flow['node_id'] = max_flow_df['node_id']
-    relative_change_in_flow['neighborhood'] = max_flow_df['neighborhood']
-
-    savepath1 = f'../outputdata/{storm_name}_V23_AllNodes_MaxFlow.csv'
-    savepath2 = f'../outputdata/{storm_name}_V23_AllNodes_RelativeFlow.csv'
-    max_flow_df.to_csv(savepath1)
-    relative_change_in_flow.to_csv(savepath2)
-    return max_flow_df, relative_change_in_flow  # relative means relative to base case
+    savepath = f'../outputdata/{storm_name}_V23_AllNodes_RelativeDepth.csv'
+    relative_change_in_depth.to_csv(savepath)
+    return relative_change_in_depth  # relative means relative to base case
 
 def find_max_vol(processed_df, node_neighborhood_df, storm_name):
     # find maxes for each node flowrate depth, each scenario
@@ -233,11 +200,9 @@ def find_max_vol(processed_df, node_neighborhood_df, storm_name):
         print(f"  Peak Absolute Vol Change: {max_val:.3f} m^3 at {max_node} (Base: {base_vol_abs:.3f} m^3, Change: {pct_change_abs:.1f}%)")
         print(f"  Peak Vol Increase: {incr:.3f} m^3 at {incr_node} (Base: {base_depth_incr:.3f} m^3, Change: {pct_change_incr:.1f}%)")
 
-    savepath1 = f'../outputdata/{storm_name}_V23_AllNodes_MaxVolume.csv'
-    savepath2 = f'../outputdata/{storm_name}_V23_AllNodes_RelativeVolume.csv'
-    max_vol_df.to_csv(savepath1)
-    relative_change_in_vol.to_csv(savepath2)
-    return max_vol_df, relative_change_in_vol  # relative means relative to base case
+    savepath = f'../outputdata/{storm_name}_V23_AllNodes_RelativeVolume.csv'
+    relative_change_in_vol.to_csv(savepath)
+    return relative_change_in_vol  # relative means relative to base case
 
 # EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -289,11 +254,10 @@ if __name__ == "__main__":
     #load processed data
     processed_df = pd.read_csv('../outputdata/6_27_23_simV23_AllNodes.csv', index_col=[0, 1])
 
-    storm_name = '6_27_23'
+    storm_name = '6_27_23' #change storm name if desired
 
     #execute find max fxns
     find_max_depth(processed_df, node_neighborhood, storm_name)
-    find_max_flow(processed_df, node_neighborhood, storm_name)
     find_max_vol(processed_df, node_neighborhood, storm_name)
 
 

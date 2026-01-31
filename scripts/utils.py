@@ -6,8 +6,7 @@ import os
 
 def clean_rpt_encoding(rpt_path, inplace=True):
     """
-    Cleans a SWMM .rpt file by replacing byte 0xb3 (superscript 3) with ASCII '3'.
-    By default modifies file in-place; if inplace=False, appends '_cleaned' to filename.
+    Cleans a SWMM .rpt file by replacing byte 0xb3 (superscript 3) with ASCII '3' - common error in SWMM.inps
     """
     if not os.path.isfile(rpt_path):
         raise FileNotFoundError(f"File not found: {rpt_path}")
