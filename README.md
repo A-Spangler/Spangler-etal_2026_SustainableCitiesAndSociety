@@ -51,7 +51,10 @@ Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty,
 
 ### Input data
 
-Spangler, A. (2026). Baltimore SWMM input file [Data set]. Zenodo. https://doi.org/some-doi-number
+- Base model - `inputdata/Inner_Harbor_Model_V23.inp`
+- Inlet Cleaning scenario - `inputdata/Inner_Harbor_Model_V23_inlets.inp`
+- Vacant Lot Greening scenario - `inputdata/Inner_Harbor_Model_V23_vacants.inp`
+- Both Scenari0 - `inputdata/Inner_Harbor_Model_V23_inlets+vacants.inp`
 
 ## Contributing Modeling Software  
 | Software      | Version       | Repository    | DOI           |
