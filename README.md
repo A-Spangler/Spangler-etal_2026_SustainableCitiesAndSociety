@@ -6,16 +6,16 @@
 
 Ava Spangler<sup>1,2\*</sup>, Antonia Hadjimichael<sup>1,2</sup>, Carlin Blash<sup>1</sup>, Mahsa Adib<sup>3,4</sup>, Hong Wu<sup>3</sup>, Mark Cameron<sup>5</sup>, Claire Welty<sup>6,7</sup>, Doris Minor-Terrell<sup>8</sup>, Benjamin Zaitchik<sup>9</sup>.
 
--<sup>1 </sup>The Pennsylvania State University Earth and Environmental Systems Institute, University Park, PA, USA.
--<sup>2 </sup> The Pennsylvania State University Earth and Environmental Systems Institute, University Park PA, USA.
--<sup>3 </sup> The Pennsylvania State University Department of Landscape Architecture, University Park, PA, USA.
--<sup>4 </sup> Michigan State University School of Planning, Design and Construction, East Lansing, MI, USA.
--<sup>5 </sup> Baltimore City Department of Public Works, Baltimore, MD, USA.
--<sup>6 </sup> University of Maryland Baltimore County Department of Chemical, Biochemical and Environmental Engineering, Baltimore, MD, USA.
--<sup>7 </sup> University of Maryland Baltimore County Center for Urban Environmental Research and Education, Baltimore, MD, USA.
--<sup>8 </sup> Broadway East Community & Community Development Corporation, Baltimore, MD, USA.
--<sup>9 </sup>Johns Hopkins University Department of Earth and Planetary Sciences, Baltimore, MD, USA.
--\* corresponding author:  aas6791@psu.edu
+- <sup>1 </sup>The Pennsylvania State University Earth and Environmental Systems Institute, University Park, PA, USA.
+- <sup>2 </sup> The Pennsylvania State University Earth and Environmental Systems Institute, University Park PA, USA.
+- <sup>3 </sup> The Pennsylvania State University Department of Landscape Architecture, University Park, PA, USA.
+- <sup>4 </sup> Michigan State University School of Planning, Design and Construction, East Lansing, MI, USA.
+- <sup>5 </sup> Baltimore City Department of Public Works, Baltimore, MD, USA.
+- <sup>6 </sup> University of Maryland Baltimore County Department of Chemical, Biochemical and Environmental Engineering, Baltimore, MD, USA.
+- <sup>7 </sup> University of Maryland Baltimore County Center for Urban Environmental Research and Education, Baltimore, MD, USA.
+- <sup>8 </sup> Broadway East Community & Community Development Corporation, Baltimore, MD, USA.
+- <sup>9 </sup>Johns Hopkins University Department of Earth and Planetary Sciences, Baltimore, MD, USA.
+- \* corresponding author:  aas6791@psu.edu
 
 ## Abstract
 The intensification of the hydrologic cycle due to climate change poses a
