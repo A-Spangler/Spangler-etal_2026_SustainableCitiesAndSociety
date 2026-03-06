@@ -43,7 +43,7 @@ of model representations, resulting in more relevant and usable insights for
 communities working to enhance climate resiliency.
 
 ## Journal reference
-Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty, C., Minor-Terrell, D., Zaitchik, B., Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore. (Sumbitted to Sustainable Cities and Society Febrary 2026)
+Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty, C., Minor-Terrell, D., Zaitchik, B., Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore. (Sumbitted to Sustainable Cities and Society February 2026)
 
 ## Code reference
 
