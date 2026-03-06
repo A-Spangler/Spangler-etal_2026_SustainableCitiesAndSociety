@@ -1,1 +1,1 @@
-## This directory contains all analysis figures from the journal article
+## This directory contains all figures from the journal article
