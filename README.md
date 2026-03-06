@@ -66,9 +66,9 @@ Fill in detailed info here or link to other documentation to thoroughly walkthro
 
 
 1. Install the software components required to conduct the experiment from [contributing modeling software](#contributing-modeling-software)
-2. Install all package dependencies listed in 'environment.yml' using 'conda env create --file environment.yml'
-3. Activate environment using 'conda activate Spangler-etal_2026_SustainableCitiesAndSociety'
-4. Download and install the supporting 'inputdata' required to conduct the experiment
+2. Install all package dependencies listed in `environment.yml` using `conda env create --file environment.yml`
+3. Activate environment using `conda activate Spangler-etal_2026_SustainableCitiesAndSociety`
+4. Download and install the supporting `inputdata` required to conduct the experiment
 5. Run the following scripts in the `scripts` directory to re-create this experiment:
 
 | Script Name | Description | How to Run |
