@@ -24,6 +24,7 @@ cfs_to_cms = (12**3)*(2.54**3)*(1/(100**3))
 ft_to_m = 12*2.54*(1/100)
 inchperhour_to_cmpersec = (2.54)*(1/3600)
 
+#list surface flooding lcoations
 def list_street_nodes(model): #separate out above ground storage nodes from below ground junctions
     nodes_df = model.nodes.dataframe
     nodes_df = nodes_df.reset_index()
@@ -31,12 +32,11 @@ def list_street_nodes(model): #separate out above ground storage nodes from belo
     street_node_names = [k for k in node_names if '-S' in k]
     return street_node_names
 
-# TODO: restructure so separate Dfs come out for depth and flow, not combined df
-
+# run simulation
 def run_pyswmm(inp_path, node_ids):
     output_nodes = {node: {'depth': [], 'flow': [], 'volume': []} for node in node_ids}
 
-# run inp_path simulation, instantiate BE nodes
+# instantiate surface nodes
     time_stamps = []
     with Simulation(inp_path) as sim:
         nodes = {node_id: Nodes(sim)[node_id] for node_id in node_ids} #dictionary with nodes
@@ -50,7 +50,7 @@ def run_pyswmm(inp_path, node_ids):
                 output_nodes[node_id]['flow'].append(node.total_inflow*cfs_to_cms) #m**3/s
                 output_nodes[node_id]['volume'].append(node.volume * cfs_to_cms) #m**3
 
-        # construct df
+        # construct df for output
         node_data = {'timestamp': time_stamps} #dictionary of timestamps
         for node_id in node_ids:
             node_data[f'{node_id}_depth'] = output_nodes[node_id]['depth']
@@ -60,12 +60,20 @@ def run_pyswmm(inp_path, node_ids):
         df_node_data = pd.DataFrame(node_data).copy()
         return df_node_data
 
-
 # define node neighborhood tuple
 node_neighborhood_df = pd.read_excel(
         'r../inputdata/Node_Neighborhoods.xlsx')
 node_neighborhood = dict(zip(node_neighborhood_df['street_node_id'],zip(node_neighborhood_df['neighborhood'], node_neighborhood_df['historic_stream'])))
 
+# SAVE MODEL RUN OUTPUT ----------------------------------------------------------------------------------------------------------
+
+# combine and save nodes as a multiindex df, names files according to storm condition being simulated in SWMM interface
+processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
+processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
+processed_nodes_df.to_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv')
+
+
+# ANALYZE OUTPUT - DEPTH ----------------------------------------------------------------------------------------------------------
 def find_max_depth(processed_df, node_neighborhood, storm_name):
     # find maxes for each node depth across entire runtime, for each scenario
     grouped_df = processed_df.groupby(level=0).max()
@@ -136,6 +144,7 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
     relative_change_in_depth.to_csv(savepath)
     return relative_change_in_depth  # relative means relative to base case
 
+# ANALYZE OUTPUT - VOLUME ----------------------------------------------------------------------------------------------------------
 def find_max_vol(processed_df, node_neighborhood_df, storm_name):
     # find maxes for each node flowrate depth, each scenario
     grouped_df = processed_df.groupby(level=0).max()
@@ -204,7 +213,7 @@ def find_max_vol(processed_df, node_neighborhood_df, storm_name):
     relative_change_in_vol.to_csv(savepath)
     return relative_change_in_vol  # relative means relative to base case
 
-# EXECUTION ------------------------------------------------------------------------------------------------------------
+# MODEL RUN EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     #clean all rpt files
     for name, inp_path in scenarios.items():
@@ -217,7 +226,7 @@ if __name__ == "__main__":
     model_path = scenarios['Base']
     model = swmmio.Model(model_path)
     node_ids = list_street_nodes(model)
-    node_ids.remove('J509-S')  # exclude unwanted (patterson park) node
+    node_ids.remove('J509-S')  # exclude patterson park pond node, known surface water feature, shouldn't have flooding
 
     # run simulations
     scenario_node_results = {}
@@ -240,16 +249,7 @@ if __name__ == "__main__":
         df_nodes = run_pyswmm(tmp_inp, node_ids)
         scenario_node_results[scenario_name] = df_nodes
 
-    # SAVE AND EXPORT ------------------------------------------------------------------------------------------------------
-    # NOTE: name files according to storm condition being simulated in SWMM interface
-    # combine and save nodes as a multiindex df
-    processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
-    processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
-    processed_nodes_df.to_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv')
-
-# DATA ANLYSIS ----------------------------------------------------------------------------------------------------------
-
-# EXECUTION ------------------------------------------------------------------------------------------------------------
+# DATA ANAlYSIS EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     #load processed data
     processed_df = pd.read_csv('../outputdata/6_27_23_simV23_AllNodes.csv', index_col=[0, 1])
