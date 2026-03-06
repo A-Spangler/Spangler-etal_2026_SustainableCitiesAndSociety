@@ -1,1 +1,1 @@
-## This directory contains figures and the code to create those figures
+## This directory contains all analysis figures from the journal article
