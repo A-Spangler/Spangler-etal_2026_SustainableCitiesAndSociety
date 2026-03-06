@@ -12,7 +12,7 @@ Ava Spangler<sup>1,2\*</sup>, Antonia Hadjimichael<sup>1,2</sup>, Carlin Blash<s
 - <sup>4 </sup> Michigan State University School of Planning, Design and Construction, East Lansing, MI, USA.
 - <sup>5 </sup> Baltimore City Department of Public Works, Baltimore, MD, USA.
 - <sup>6 </sup> University of Maryland Baltimore County Department of Chemical, Biochemical and Environmental Engineering, Baltimore, MD, USA.
-- <sup>7 </sup> University of Maryland Baltimore County Center for Urban Environmental Research and Education, Baltimore, MD, USA.
+- <sup>7 </sup> University of Maryland Baltimore County, Center for Urban Environmental Research and Education, Baltimore, MD, USA.
 - <sup>8 </sup> Broadway East Community & Community Development Corporation, Baltimore, MD, USA.
 - <sup>9 </sup>Johns Hopkins University Department of Earth and Planetary Sciences, Baltimore, MD, USA.
 - \* corresponding author:  aas6791@psu.edu
