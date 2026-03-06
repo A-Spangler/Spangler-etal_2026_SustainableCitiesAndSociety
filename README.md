@@ -80,4 +80,4 @@ Use the scripts found in the `figures` directory to reproduce the figures used i
 
 | Figure Number(s) | Script Name | Description | How to Run |
 | --- | --- | --- | --- |
-| 1-6 | `BSEC_SWMM_Plotter.py` | Plots all figures in the journal aricle | `python3 BSEC_SWMM_Plotter.py -input /path/to/inputs -output /path/to/outuptdir` |
+| 1-6 | `BSEC_SWMM_Plotter.py` | Plots all analysis figures in the journal aricle | `python3 BSEC_SWMM_Plotter.py -input /path/to/inputs -output /path/to/outuptdir` |
