@@ -60,16 +60,12 @@ def run_pyswmm(inp_path, node_ids):
         return df_node_data
 
 # define node neighborhood tuple
-node_neighborhood_df = pd.read_excel(
-        'r../inputdata/Node_Neighborhoods.xlsx')
+node_neighborhood_df = pd.read_excel('../inputdata/Node_Neighborhoods.xlsx')
 node_neighborhood = dict(zip(node_neighborhood_df['street_node_id'],zip(node_neighborhood_df['neighborhood'], node_neighborhood_df['historic_stream'])))
+# model run is completed and output files are saved in outputdata
 
-# SAVE MODEL RUN OUTPUT ----------------------------------------------------------------------------------------------------------
 
-# combine and save nodes as a multiindex df, names files according to storm condition being simulated in SWMM interface
-processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
-processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
-processed_nodes_df.to_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv')
+
 
 
 # ANALYZE OUTPUT - DEPTH ----------------------------------------------------------------------------------------------------------
@@ -106,12 +102,11 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
 
     # define new df showing relative change from base case
     # drop node names and neighborhoods for subtraction, then add back in
-    relative_change_in_depth = max_depth_df.iloc[:, 1:5].copy() # TODO: fix hardcoding in the column indicies, changes 2 + number of scenarios processed
+    relative_change_in_depth = max_depth_df.iloc[:, 1:5].copy() # hardcoded in the column indicies, changes 2 + number of scenarios processed. 
     relative_change_in_depth = relative_change_in_depth.sub(max_depth_df['Base'], axis = 0)
     relative_change_in_depth['node_name'] = max_depth_df['node_name']
     relative_change_in_depth['node_id'] = max_depth_df['node_id']
     relative_change_in_depth['neighborhood'] = max_depth_df['neighborhood']
-    relative_change_in_depth['historic_stream'] = max_depth_df['historic_stream']
 
     #determine and print peak change in flood depth
     print("\nPeak Relative Change by Scenario:")
@@ -212,51 +207,53 @@ def find_max_vol(processed_df, node_neighborhood_df, storm_name):
     relative_change_in_vol.to_csv(savepath)
     return relative_change_in_vol  # relative means relative to base case
 
-# MODEL RUN EXECUTION ------------------------------------------------------------------------------------------------------------
+
+
+
+# EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    #clean all rpt files
+    # Clean all rpt files
     for name, inp_path in scenarios.items():
         rpt_path = os.path.splitext(inp_path)[0] + '.rpt'
         if os.path.isfile(rpt_path):
             print(f"Cleaning report file: {rpt_path}")
             clean_rpt_encoding(rpt_path)
 
-    #find street node names
+    # Find street node names
     model_path = scenarios['Base']
     model = swmmio.Model(model_path)
     node_ids = list_street_nodes(model)
-    node_ids.remove('J509-S')  # exclude patterson park pond node, known surface water feature, shouldn't have flooding
+    node_ids.remove('J509-S')
 
-    # run simulations
-    scenario_node_results = {}
+    # Loop over ALL storms automatically
+    for selected_storm, storm_ts in storms.items():
+        print(f"\n{'='*60}")
+        print(f"Processing storm: {selected_storm}")
 
-    # change named storm being simulated
-    selected_storm = '6_27_23'
-    storm_ts = storms[selected_storm]
+        scenario_node_results = {}
 
-    for scenario_name, inp_path in scenarios.items():
-        print(f"Running scenario: {scenario_name} with storm {selected_storm}")
+        for scenario_name, inp_path in scenarios.items():
+            print(f"  Running scenario: {scenario_name}")
 
-        # Create temp inp file
-        tmp_inp = os.path.join(
-            tempfile.gettempdir(),
-            f'{scenario_name}_{selected_storm}.inp')
+            tmp_inp = os.path.join(
+                tempfile.gettempdir(),
+                f'{scenario_name}_{selected_storm}.inp')
 
-        # Swap storm
-        storm_timeseries(inp_path, storm_ts, tmp_inp)
+            storm_timeseries(inp_path, storm_ts, tmp_inp)
+            df_nodes = run_pyswmm(tmp_inp, node_ids)
+            scenario_node_results[scenario_name] = df_nodes
 
-        df_nodes = run_pyswmm(tmp_inp, node_ids)
-        scenario_node_results[scenario_name] = df_nodes
+        # Save simulation results
+        processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
+        processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
+        processed_nodes_df.to_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv')
 
-# DATA ANAlYSIS EXECUTION ------------------------------------------------------------------------------------------------------------
-if __name__ == "__main__":
-    #load processed data
-    processed_df = pd.read_csv('../outputdata/6_27_23_simV23_AllNodes.csv', index_col=[0, 1])
+        # Run analysis immediately after each storm — no user input needed
+        processed_df = pd.read_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv', index_col=[0, 1])
 
-    storm_name = '6_27_23' #change storm name if desired
+        find_max_depth(processed_df, node_neighborhood, selected_storm)
+        find_max_vol(processed_df, node_neighborhood, selected_storm)
 
-    #execute find max fxns
-    find_max_depth(processed_df, node_neighborhood, storm_name)
-    find_max_vol(processed_df, node_neighborhood, storm_name)
+
 
 
