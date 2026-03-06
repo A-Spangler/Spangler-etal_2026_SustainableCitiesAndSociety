@@ -73,11 +73,11 @@ Fill in detailed info here or link to other documentation to thoroughly walkthro
 
 | Script Name | Description | How to Run |
 | --- | --- | --- |
-| `BSEC_SWMM_model.py` | Script to run the first part of my experiment | `python3 BSEC_SWMM_model.py -f /path/to/inputdata/BSEC_SWMM_model.inp` |
+| `BSEC_SWMM_model.py` | Script to process the input data, run the model, and analyze the outputs | `python3 BSEC_SWMM_model.py -f /path/to/inputdata/BSEC_SWMM_model.inp` |
 
 ## Reproduce my figures
-Use the scripts found in the `figures` directory to reproduce the figures used in this publication.
+Use the scripts found in the `scripts` directory to reproduce the figures used in this publication.
 
 | Figure Number(s) | Script Name | Description | How to Run |
 | --- | --- | --- | --- |
-| 1-6 | `BSEC_SWMM_Plotter.py` | Plots all analysis figures in the journal aricle | `python3 BSEC_SWMM_Plotter.py -input /path/to/inputs -output /path/to/outuptdir` |
+| 5,6 | `BSEC_SWMM_Plotter.py` | Prepares files for Fig5, which requires GIS visualization. PLots Fig6. | `python3 BSEC_SWMM_Plotter.py -input ../inputdata -output ../outputdata` |
