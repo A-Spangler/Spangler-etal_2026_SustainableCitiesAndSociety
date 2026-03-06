@@ -1,5 +1,5 @@
 # By: Ava Spangler
-# Date: 01/31/2026
+# Date: 03/6/2026
 # Description: This code is from Spangler-etal_2026_SustainableCitiesandSociety
 # this script executes 1 run of the Baltimore SWMM model using pyswmm.
 # then processes and stores the results in a dataframe
@@ -20,8 +20,8 @@ import tempfile
 # DEFINITIONS ----------------------------------------------------------------------------------------------------------
 # Initialize dictionaries for storing data from each node in each scenario
 # function to run pyswmm and save outputs as dict
-cfs_to_cms = (12**3)*(2.54**3)*(1/(100**3))
 ft_to_m = 12*2.54*(1/100)
+cfs_to_cms = 0.0283168 #cubic meters
 inchperhour_to_cmpersec = (2.54)*(1/3600)
 
 #list surface flooding lcoations
@@ -47,7 +47,6 @@ def run_pyswmm(inp_path, node_ids):
             time_stamps.append(sim.current_time)
             for node_id, node in nodes.items(): # store node flow and depth data in node dictionary
                 output_nodes[node_id]['depth'].append(node.depth*ft_to_m) # ft to m
-                output_nodes[node_id]['flow'].append(node.total_inflow*cfs_to_cms) #m**3/s
                 output_nodes[node_id]['volume'].append(node.volume * cfs_to_cms) #m**3
 
         # construct df for output
