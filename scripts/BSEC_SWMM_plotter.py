@@ -4,101 +4,87 @@
 # from Spangler-etal_2026_SustainableCitiesandSociety
 
 # IMPORTS --------------------------------------------------------------------------------------------------------------
+inport os
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-
+from scripts.config import scenarios, storms
 
 
 # FIGURE 5 -------------------------------------------------------------------------------------------------------------
-# write files for importing to GIS here
-input_csv = ('../processed/nodes/6_27_23_simV23_AllNodes.csv')
+# Processes SWMM simulation output for GIS export.
+def process_scenarios_to_gis(input_csv, coords_file, output_dir, base_scenario_name='Base'):
 
-coords_file = ('../inputdata/Node_Coords.xlsx')
+    # Set up output directories
+    processed_dir = os.path.join(output_dir, 'GIS_exports')
+    relative_dir = os.path.join(processed_dir, 'relative_depth')
+    os.makedirs(processed_dir, exist_ok=True)
+    os.makedirs(relative_dir, exist_ok=True)
 
-processed_dir = ('../figures/GISimports/V23')
-os.makedirs(processed_dir, exist_ok=True)
+    # Load data
+    df = pd.read_csv(input_csv, parse_dates=['timestamp'])
+    coords = pd.read_excel(coords_file)
+    coords['node_id'] = coords['node_id'].astype(float)
 
-# Separate folder for relative depth files
-relative_dir = os.path.join(processed_dir, 'relative_depth')
-os.makedirs(relative_dir, exist_ok=True)
+    depth_cols = [c for c in df.columns if c.endswith('_depth')]
 
-# load data
-df = pd.read_csv(input_csv, parse_dates=['timestamp'])
+    # clean node_id strings
+    def clean_node_id(series):
+        return (
+            series
+            .str.replace('_depth', '', regex=False)
+            .str.replace(r'^J', '', regex=True)
+            .str.replace(r'-S$', '', regex=True)
+            .astype(float)
+        )
 
-coords = pd.read_excel(coords_file)
-coords['node_id'] = coords['node_id'].astype(float)
-depth_cols = [c for c in df.columns if c.endswith('_depth')]
+    # Build base long-form df for relative depth calculations
+    base_df = df[df['scenario'] == base_scenario_name].copy()
+    if base_df.empty:
+        raise ValueError(f"Base scenario '{base_scenario_name}' not found in CSV.")
 
-
-# Process base scenario
-base_scenario_name = 'Base'  
-base_df = df[df['scenario'] == base_scenario_name].copy()
-
-# Process base for merging later
-base_sub = base_df[['timestamp'] + depth_cols].rename(columns={'timestamp': '24dt'})
-base_long = base_sub.melt(id_vars='24dt', var_name='node_id', value_name='depth_m')
-base_long['node_id'] = (
-    base_long['node_id']
-    .str.replace('_depth', '', regex=False)
-    .str.replace(r'^J', '', regex=True)
-    .str.replace(r'-S$', '', regex=True)
-    .astype(float)
-)
-
-#process other scenarios
-for scenario, scen_df in df.groupby('scenario'):
-
-    print(f'Formatting scenario: {scenario}')
-
-    # Keep only timestamp + depth columns
-    sub = scen_df[['timestamp'] + depth_cols].copy()
-    sub = sub.rename(columns={'timestamp': '24dt'})
-
-    # Wide → long
-    long_df = sub.melt(
-        id_vars='24dt',
-        var_name='node_id',
-        value_name='depth_m'
+    base_long = (
+        base_df[['timestamp'] + depth_cols]
+        .rename(columns={'timestamp': '24dt'})
+        .melt(id_vars='24dt', var_name='node_id', value_name='depth_m_base')
     )
+    base_long['node_id'] = clean_node_id(base_long['node_id'])
 
-    # Clean node_id: J105-S_depth → 105
-    long_df['node_id'] = (
-        long_df['node_id']
-        .str.replace('_depth', '', regex=False)
-        .str.replace(r'^J', '', regex=True)
-        .str.replace(r'-S$', '', regex=True)
-        .astype(float)
-    )
+    # Process all scenarios
+    for scenario, scen_df in df.groupby('scenario'):
+        print(f'Formatting scenario: {scenario}')
 
-    # Merge coordinates
-    formatted = long_df.merge(coords, on='node_id', how='left')
+        long_df = (
+            scen_df[['timestamp'] + depth_cols]
+            .copy()
+            .rename(columns={'timestamp': '24dt'})
+            .melt(id_vars='24dt', var_name='node_id', value_name='depth_m')
+        )
+        long_df['node_id'] = clean_node_id(long_df['node_id'])
 
-    # Save regular processed file (optional, can skip if not needed)
-    out_file = os.path.join(processed_dir, f'{scenario}_results_processed.csv')
-    formatted.to_csv(out_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
-    print(f'  → saved processed file {out_file}')
+        # Merge coordinates
+        formatted = long_df.merge(coords, on='node_id', how='left')
 
-    # Skip relative depth for base scenario
-    if scenario == base_scenario_name:
-        continue
+        # Save per-scenario processed file
+        out_file = os.path.join(processed_dir, f'{scenario}_results_processed.csv')
+        formatted.to_csv(out_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
+        print(f'  → saved processed file: {out_file}')
 
-    # Merge with base to compute relative depth
-    merged = formatted.merge(
-        base_long.rename(columns={'depth_m': 'depth_m_base'}),
-        on=['24dt', 'node_id'],
-        how='left'
-    )
-    merged['relative_depth_m'] = merged['depth_m'] - merged['depth_m_base']
+        # Skip relative depth for base scenario
+        if scenario == base_scenario_name:
+            continue
 
-    # Reorder columns
-    merged = merged[['24dt', 'node_id', 'depth_m', 'depth_m_base', 'relative_depth_m', 'x', 'y']]
+        # Compute and save relative depth vs. base
+        merged = formatted.merge(base_long, on=['24dt', 'node_id'], how='left')
+        merged['relative_depth_m'] = merged['depth_m'] - merged['depth_m_base']
+        merged = merged[['24dt', 'node_id', 'depth_m', 'depth_m_base', 'relative_depth_m', 'x', 'y']]
 
-    # Save relative depth file in separate folder
-    relative_file = os.path.join(relative_dir, f'{scenario}_relative_depth.csv')
-    merged.to_csv(relative_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
-    print(f'  → saved relative depth file {relative_file}')
+        relative_file = os.path.join(relative_dir, f'{scenario}_relative_depth.csv')
+        merged.to_csv(relative_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
+        print(f'  → saved relative depth file: {relative_file}')
+
+    print(f'\nDone. Outputs saved to: {processed_dir}')
 
 
 
@@ -205,6 +191,12 @@ def volume_stackplot(relative_vol_df, name):
 
 # EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
+    for selected_storm in storms.keys():
+        process_scenarios_to_gis(
+            input_csv=f'../processed/nodes/{selected_storm}_simV23_AllNodes.csv',
+            coords_file='../inputdata/Node_Coords.xlsx',
+            output_dir='../figures')
+    
     # load dfs
     relative_depth_df = pd.read_csv('../outputdata/0.5x_fullstorm_6_27_23_V23_AllNodes_RelativeDepth.csv').drop(['Unnamed: 0'],axis=1)
     relative_volume_df = pd.read_csv('../outputdata/0.5x_fullstorm_6_27_23_V23_AllNodes_RelativeVolume.csv').drop(['Unnamed: 0'], axis=1)
