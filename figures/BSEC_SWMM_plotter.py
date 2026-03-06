@@ -9,6 +9,102 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+
+
+# FIGURE 5 -------------------------------------------------------------------------------------------------------------
+# write files for importing to GIS here
+input_csv = ('../processed/nodes/6_27_23_simV23_AllNodes.csv')
+
+coords_file = ('../inputdata/Node_Coords.xlsx')
+
+processed_dir = ('../figures/GISimports/V23')
+os.makedirs(processed_dir, exist_ok=True)
+
+# Separate folder for relative depth files
+relative_dir = os.path.join(processed_dir, 'relative_depth')
+os.makedirs(relative_dir, exist_ok=True)
+
+# load data
+df = pd.read_csv(input_csv, parse_dates=['timestamp'])
+
+coords = pd.read_excel(coords_file)
+coords['node_id'] = coords['node_id'].astype(float)
+depth_cols = [c for c in df.columns if c.endswith('_depth')]
+
+
+# Process base scenario
+base_scenario_name = 'Base'  
+base_df = df[df['scenario'] == base_scenario_name].copy()
+
+# Process base for merging later
+base_sub = base_df[['timestamp'] + depth_cols].rename(columns={'timestamp': '24dt'})
+base_long = base_sub.melt(id_vars='24dt', var_name='node_id', value_name='depth_m')
+base_long['node_id'] = (
+    base_long['node_id']
+    .str.replace('_depth', '', regex=False)
+    .str.replace(r'^J', '', regex=True)
+    .str.replace(r'-S$', '', regex=True)
+    .astype(float)
+)
+
+#process other scenarios
+for scenario, scen_df in df.groupby('scenario'):
+
+    print(f'Formatting scenario: {scenario}')
+
+    # Keep only timestamp + depth columns
+    sub = scen_df[['timestamp'] + depth_cols].copy()
+    sub = sub.rename(columns={'timestamp': '24dt'})
+
+    # Wide → long
+    long_df = sub.melt(
+        id_vars='24dt',
+        var_name='node_id',
+        value_name='depth_m'
+    )
+
+    # Clean node_id: J105-S_depth → 105
+    long_df['node_id'] = (
+        long_df['node_id']
+        .str.replace('_depth', '', regex=False)
+        .str.replace(r'^J', '', regex=True)
+        .str.replace(r'-S$', '', regex=True)
+        .astype(float)
+    )
+
+    # Merge coordinates
+    formatted = long_df.merge(coords, on='node_id', how='left')
+
+    # Save regular processed file (optional, can skip if not needed)
+    out_file = os.path.join(processed_dir, f'{scenario}_results_processed.csv')
+    formatted.to_csv(out_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
+    print(f'  → saved processed file {out_file}')
+
+    # Skip relative depth for base scenario
+    if scenario == base_scenario_name:
+        continue
+
+    # Merge with base to compute relative depth
+    merged = formatted.merge(
+        base_long.rename(columns={'depth_m': 'depth_m_base'}),
+        on=['24dt', 'node_id'],
+        how='left'
+    )
+    merged['relative_depth_m'] = merged['depth_m'] - merged['depth_m_base']
+
+    # Reorder columns
+    merged = merged[['24dt', 'node_id', 'depth_m', 'depth_m_base', 'relative_depth_m', 'x', 'y']]
+
+    # Save relative depth file in separate folder
+    relative_file = os.path.join(relative_dir, f'{scenario}_relative_depth.csv')
+    merged.to_csv(relative_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
+    print(f'  → saved relative depth file {relative_file}')
+
+
+
+
+
+
 # FIGURE 6 ----------------------------------------------------------------------------------------------------------
 def depth_stackplot(relative_depth_df, name):
     fig, ax = plt.subplots(figsize=(10, 4))
@@ -102,8 +198,10 @@ def volume_stackplot(relative_vol_df, name):
     save_path = f'../figures/{name}_relative_stackplot_volume_V23.png'
     plt.savefig(save_path)
 
-# FIGURE 5 -------------------------------------------------------------------------------------------------------------
-# write files for importing to GIS here
+
+
+
+
 
 # EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
