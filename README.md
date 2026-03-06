@@ -62,22 +62,11 @@ Spangler, A. (2026). Baltimore SWMM input file [Data set]. Zenodo. https://doi.o
 
 
 ## Reproduce my experiment
-Fill in detailed info here or link to other documentation to thoroughly walkthrough how to use the contents of this repository to reproduce your experiment. Below is an example.
-
-
 1. Install the software components required to conduct the experiment from [contributing modeling software](#contributing-modeling-software)
 2. Install all package dependencies listed in `environment.yml` using `conda env create --file environment.yml`
 3. Activate environment using `conda activate Spangler-etal_2026_SustainableCitiesAndSociety`
-4. Download and install the supporting `inputdata` required to conduct the experiment
-5. Run the following scripts in the `scripts` directory to re-create this experiment:
-
-| Script Name | Description | How to Run |
-| --- | --- | --- |
-| `BSEC_SWMM_model.py` | Script to process the input data, run the model, and analyze the outputs | `python3 BSEC_SWMM_model.py -f /path/to/inputdata/BSEC_SWMM_model.inp` |
+4. Download the supporting `inputdata` required to conduct the experiment
+5. Run the `BSEC_SWMM_model.py` script in the `scripts` directory to re-create this experiment:
 
 ## Reproduce my figures
-Use the scripts found in the `scripts` directory to reproduce the figures used in this publication.
-
-| Figure Number(s) | Script Name | Description | How to Run |
-| --- | --- | --- | --- |
-| 5,6 | `BSEC_SWMM_Plotter.py` | Prepares files for Fig5, which requires GIS visualization. PLots Fig6. | `python3 BSEC_SWMM_Plotter.py -input ../inputdata -output ../outputdata` |
+Use the `BSEC_SWMM_plotter.py` script found in the `scripts` directory to reproduce the figures used in this publication. Prepares files for Fig5, which requires GIS visualization, and plots Fig6.
