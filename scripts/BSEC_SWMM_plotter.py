@@ -137,7 +137,9 @@ def depth_stackplot(relative_depth_df, name):
     #plt.show()
     save_path = f'../figures/{name}_relative_stackplot_depth_V23.png'
     plt.savefig(save_path)
+    
 
+# Fig 6 supplementary version
 def volume_stackplot(relative_vol_df, name):
     fig, ax = plt.subplots(figsize=(10, 4))
     plot_cols = ['V', 'I', 'V&I']
@@ -148,7 +150,7 @@ def volume_stackplot(relative_vol_df, name):
     bar_height = 0.65
 
     # plot only broadway east as color
-    unique_neighborhoods = sorted(relative_depth_df['neighborhood'].unique())
+    unique_neighborhoods = sorted(relative_vol_df['neighborhood'].unique())
     num_neigh = len(unique_neighborhoods)
     colors = ['mediumpurple' if n == 'Broadway East' or n == 'Dunbar-Broadway' or n == 'Eager Park' else 'lightgrey' for
               n in unique_neighborhoods]
@@ -196,13 +198,13 @@ if __name__ == "__main__":
             input_csv=f'../processed/nodes/{selected_storm}_simV23_AllNodes.csv',
             coords_file='../inputdata/Node_Coords.xlsx',
             output_dir='../figures')
-    
-    # load dfs
-    relative_depth_df = pd.read_csv('../outputdata/0.5x_fullstorm_6_27_23_V23_AllNodes_RelativeDepth.csv').drop(['Unnamed: 0'],axis=1)
-    relative_volume_df = pd.read_csv('../outputdata/0.5x_fullstorm_6_27_23_V23_AllNodes_RelativeVolume.csv').drop(['Unnamed: 0'], axis=1)
 
-    storm_name = '0.5x_fullstorm_6_27_23'
-    #execute, note 'relative' functions means the result is relative to base case
-    depth_stackplot(relative_depth_df, storm_name)
-    volume_stackplot(relative_volume_df, storm_name)
+        relative_depth_df = pd.read_csv(
+            f'../outputdata/{selected_storm}_V23_AllNodes_RelativeDepth.csv').drop(columns=['Unnamed: 0'], errors='ignore')
+
+        relative_volume_df = pd.read_csv(
+            f'../outputdata/{selected_storm}_V23_AllNodes_RelativeVolume.csv').drop(columns=['Unnamed: 0'], errors='ignore')
+
+        depth_stackplot(relative_depth_df, selected_storm)
+        volume_stackplot(relative_volume_df, selected_storm)
 
