@@ -1,10 +1,9 @@
 # By: Ava Spangler
-# Date: 03/6/2026
-# Description: This code is from Spangler-etal_2026_SustainableCitiesandSociety
-# this script executes 1 run of the Baltimore SWMM model using pyswmm.
-# then processes and stores the results in a dataframe
-
-# to simulate different storm conditions, SWMM .inp must be updated with storm data and name
+# Date: 8/12/2025
+# Description: This script runs SWMM simulations using pyswmm, processes the results into dataframes,
+# and analyzes them — all in a single execution. Results from the simulation are passed directly
+# into the analysis functions without intermediate CSV loading.
+# To simulate different storm conditions, update selected_storm in the EXECUTION block.
 
 # IMPORTS --------------------------------------------------------------------------------------------------------------
 import os
@@ -12,19 +11,17 @@ import pandas as pd
 import swmmio
 import pyswmm
 import datetime as dt
-from pyswmm import Simulation, Nodes, Subcatchments, LidControls, LidGroups
+from pyswmm import Simulation, Nodes, Links, Subcatchments, LidControls, LidGroups
 from scripts.config import scenarios, storms
 from scripts.utils import clean_rpt_encoding, storm_timeseries
 import tempfile
 
 # DEFINITIONS ----------------------------------------------------------------------------------------------------------
-# Initialize dictionaries for storing data from each node in each scenario
-# function to run pyswmm and save outputs as dict
+cfs_to_cms = 0.0283168
 ft_to_m = 12*2.54*(1/100)
-cfs_to_cms = 0.0283168 #cubic meters
 inchperhour_to_cmpersec = (2.54)*(1/3600)
 
-#list surface flooding lcoations
+##### Run SWMM and save functions #####
 def list_street_nodes(model): #separate out above ground storage nodes from below ground junctions
     nodes_df = model.nodes.dataframe
     nodes_df = nodes_df.reset_index()
@@ -32,185 +29,341 @@ def list_street_nodes(model): #separate out above ground storage nodes from belo
     street_node_names = [k for k in node_names if '-S' in k]
     return street_node_names
 
-# run simulation
-def run_pyswmm(inp_path, node_ids):
-    output_nodes = {node: {'depth': [], 'flow': [], 'volume': []} for node in node_ids}
+def list_street_links(model): #separate out above ground storage nodes from below ground junctions
+    link_df = model.links.dataframe
+    link_df = link_df.reset_index()
+    link_names = link_df['Name'].tolist()
+    street_link_names = [q for q in link_names if '-S' in q]
+    return street_link_names
 
-# instantiate surface nodes
+def run_pyswmm(inp_path, node_ids, link_ids):
+    output_nodes = {node: {'depth': [], 'flow': [], 'volume': []} for node in node_ids}
+    output_links = {link: {'velocity': []} for link in link_ids}
+
     time_stamps = []
     with Simulation(inp_path) as sim:
-        nodes = {node_id: Nodes(sim)[node_id] for node_id in node_ids} #dictionary with nodes
-        sim.step_advance(300) #lets python access sim during run (300 sec = 5min inetervals)
+        nodes = {node_id: Nodes(sim)[node_id] for node_id in node_ids}
+        links = {link_id: Links(sim)[link_id] for link_id in link_ids}
+        sim.step_advance(300) #lets python access sim during run (300 sec = 5min intervals)
 
-        # Launch inp_path simulation
         for step in enumerate(sim):
             time_stamps.append(sim.current_time)
-            for node_id, node in nodes.items(): # store node flow and depth data in node dictionary
+            for node_id, node in nodes.items():
                 output_nodes[node_id]['depth'].append(node.depth*ft_to_m) # ft to m
+                output_nodes[node_id]['flow'].append(node.total_inflow*cfs_to_cms) #m**3/s
                 output_nodes[node_id]['volume'].append(node.volume * cfs_to_cms) #m**3
+            for link_id, link in links.items():
+                output_links[link_id]['velocity'].append((link.flow/((link.ds_xsection_area + link.ups_xsection_area)/2)) * ft_to_m) #ft/s to meter/s
 
-        # construct df for output
-        node_data = {'timestamp': time_stamps} #dictionary of timestamps
+        node_data = {'timestamp': time_stamps}
         for node_id in node_ids:
             node_data[f'{node_id}_depth'] = output_nodes[node_id]['depth']
             node_data[f'{node_id}_flow'] = output_nodes[node_id]['flow']
             node_data[f'{node_id}_volume'] = output_nodes[node_id]['volume']
+        link_data = {'timestamp': time_stamps}
+        for link_id in link_ids:
+            link_data[f'{link_id}_velocity'] = output_links[link_id]['velocity']
 
         df_node_data = pd.DataFrame(node_data).copy()
-        return df_node_data
+        numeric_cols = df_node_data.columns.drop('timestamp')
+        df_node_data[numeric_cols] = df_node_data[numeric_cols].apply(pd.to_numeric, errors='coerce')
+        df_link_data = pd.DataFrame(link_data).copy()
+        numeric_cols = df_link_data.columns.drop('timestamp')
+        df_link_data[numeric_cols] = df_link_data[numeric_cols].apply(pd.to_numeric, errors='coerce')
+        return df_node_data, df_link_data
+
 
 # define node neighborhood tuple
-node_neighborhood_df = pd.read_excel('../inputdata/Node_Neighborhoods.xlsx')
+node_neighborhood_df = pd.read_excel(f'../processed/nodes/Node_Neighborhoods.xlsx')
 node_neighborhood = dict(zip(node_neighborhood_df['street_node_id'],zip(node_neighborhood_df['neighborhood'], node_neighborhood_df['historic_stream'])))
-# model run is completed and output files are saved in outputdata
 
+# define link neighborhood tuple
+link_neighborhood_df = pd.read_excel(f'../processed/links/Link_Neighborhoods.xlsx')
+link_neighborhood = dict(zip(link_neighborhood_df['link_id'],(link_neighborhood_df['neighborhood'])))
 
-
-
-
-# ANALYZE OUTPUT - DEPTH ----------------------------------------------------------------------------------------------------------
+##### data analysis functions #####
 def find_max_depth(processed_df, node_neighborhood, storm_name):
-    # find maxes for each node depth across entire runtime, for each scenario
+    # 1. Group and Pivot Logic
     grouped_df = processed_df.groupby(level=0).max()
-
-    # select depth cols
     depth_cols = [col for col in grouped_df.columns if col.endswith('_depth')]
     max_depth_df = grouped_df[depth_cols]
 
-    # make scenarios into column headers
+    # Transform: Scenarios become columns, Nodes become rows
     max_depth_df = max_depth_df.reset_index()
     max_depth_df = max_depth_df.set_index('scenario').T
     max_depth_df = max_depth_df.reset_index().rename(columns={'index': 'node_name'})
-    max_depth_df = max_depth_df.reset_index(drop = True)
-    # assign neighborhoods to node name by extracting node name and mapping dict
-    max_depth_df['node_id'] = max_depth_df['node_name'].str.extract(r'([^_]+)')[0] # extract all ccharacters before the underscore (drop _depth)
+    max_depth_df = max_depth_df.reset_index(drop=True)
+
+    # 2. Add Metadata
+    max_depth_df['node_id'] = max_depth_df['node_name'].str.extract(r'([^_]+)')[0]
     max_depth_df['neighborhood'] = max_depth_df['node_id'].map(lambda x: node_neighborhood[x][0])
     max_depth_df['historic_stream'] = max_depth_df['node_id'].map(lambda x: node_neighborhood[x][1])
 
-    #determine and print peak change in flood depth
-    print("\nPeak Depths by Scenario:")
-    for scenario in max_depth_df.columns[1:-3]:  # Skip node naming cols
-        max_val = max_depth_df[scenario].max() # find the deepest 1 node reached
-        max_node = max_depth_df.loc[max_depth_df[scenario].idxmax(), 'node_name'] #name of node
-        print(f"Scenario: {scenario}, Node: {max_node}, Peak Depth: {max_val:.3f} m")
+    # 3. DYNAMIC COLUMN IDENTIFICATION
+    metadata_cols = ['node_name', 'node_id', 'neighborhood', 'historic_stream']
+    scenario_names = [col for col in max_depth_df.columns if col not in metadata_cols]
 
-    # determine and print avg change in flood depth
-    print("\nAverage Depths by Scenario:")
-    for scenario in max_depth_df.columns[1:-3]:
-        avg_val = max_depth_df[scenario].mean() # average for all nodes, max depth of all timesteps
-        print(f"Scenario: {scenario}, Average Depth: {avg_val:.3f} m")
+    # 4. Scenario Summary (Absolute Maxes) — all scenarios including Base
+    peak_depth_rows = []
+    avg_depth_rows = []
+    for scenario in scenario_names:
+        max_val = max_depth_df[scenario].max()
+        max_node = max_depth_df.loc[max_depth_df[scenario].idxmax(), 'node_name']
+        peak_depth_rows.append({'scenario': scenario, 'node_name': max_node, 'peak_depth_m': max_val})
 
-    # define new df showing relative change from base case
-    # drop node names and neighborhoods for subtraction, then add back in
-    relative_change_in_depth = max_depth_df.iloc[:, 1:5].copy() # hardcoded in the column indicies, changes 2 + number of scenarios processed. 
-    relative_change_in_depth = relative_change_in_depth.sub(max_depth_df['Base'], axis = 0)
-    relative_change_in_depth['node_name'] = max_depth_df['node_name']
-    relative_change_in_depth['node_id'] = max_depth_df['node_id']
-    relative_change_in_depth['neighborhood'] = max_depth_df['neighborhood']
+        avg_val = max_depth_df[scenario].mean()
+        avg_depth_rows.append({'scenario': scenario, 'avg_depth_m': avg_val})
 
-    #determine and print peak change in flood depth
-    print("\nPeak Relative Change by Scenario:")
-    for scenario in relative_change_in_depth.columns[0:-4]:
-        # Find peak increase
+    peak_depth_summary = pd.DataFrame(peak_depth_rows)
+    avg_depth_summary = pd.DataFrame(avg_depth_rows)
+
+    # 5. Relative Change (Scenario - Base)
+    relative_change_in_depth = max_depth_df[scenario_names].copy()
+
+    if 'Base' in relative_change_in_depth.columns:
+        relative_change_in_depth = relative_change_in_depth.sub(max_depth_df['Base'], axis=0)
+    else:
+        print("Warning: 'Base' scenario not found. Relative changes will be scenario values.")
+
+    for col in metadata_cols:
+        relative_change_in_depth[col] = max_depth_df[col]
+
+    # 6. Relative Summary — exclude Base (Base - Base = 0 everywhere, metrics are meaningless)
+    non_base_scenarios = [s for s in scenario_names if s != 'Base']
+
+    print("Scenarios in relative_change_in_depth:", relative_change_in_depth.columns.tolist())
+    print("Non-base scenarios:", non_base_scenarios)
+
+    for scenario in non_base_scenarios:
+        print(f"\n--- {scenario} ---")
+        print("dtype:", relative_change_in_depth[scenario].dtype)
+        print("non-zero count:", (relative_change_in_depth[scenario] != 0).sum())
+        print("abs max value:", relative_change_in_depth[scenario].abs().max())
+        print("abs max index:", relative_change_in_depth[scenario].abs().idxmax())
+        print("node at that index:",
+              relative_change_in_depth.loc[relative_change_in_depth[scenario].abs().idxmax(), 'node_name'])
+        print(relative_change_in_depth[scenario].abs().nlargest(5))
+
+    rel_depth_rows = []
+    for scenario in non_base_scenarios:
+        avg_change = relative_change_in_depth[scenario].mean()
+
         incr = relative_change_in_depth[scenario].max()
         incr_idx = relative_change_in_depth[scenario].idxmax()
         incr_node = relative_change_in_depth.loc[incr_idx, 'node_name']
-
-        # Find base depth at that node for percentage calculation
         base_depth_incr = max_depth_df.loc[incr_idx, 'Base']
         pct_change_incr = (incr / base_depth_incr * 100) if base_depth_incr > 0 else float('inf')
 
-        # Find peak absolute change
         abs_vals = relative_change_in_depth[scenario].abs()
         idx_abs_max = abs_vals.idxmax()
         max_val = relative_change_in_depth.loc[idx_abs_max, scenario]
         max_node = relative_change_in_depth.loc[idx_abs_max, 'node_name']
-
-        # Find base depth for peak absolute change node
         base_depth_abs = max_depth_df.loc[idx_abs_max, 'Base']
         pct_change_abs = (max_val / base_depth_abs * 100) if base_depth_abs > 0 else float('inf')
 
-        print(f"Scenario: {scenario}")
-        print(f"  Peak Absolute Change: {max_val:.3f} m at {max_node} (Base: {base_depth_abs:.3f} m, Change: {pct_change_abs:.1f}%)")
-        print(f"  Peak Increase: {incr:.3f} m at {incr_node} (Base: {base_depth_incr:.3f} m, Change: {pct_change_incr:.1f}%)")
+        rel_depth_rows.append({
+            'scenario': scenario,
+            'avg_peak_change_m': avg_change,
+            'peak_abs_change_m': max_val,
+            'peak_abs_change_node': max_node,
+            'base_depth_abs_m': base_depth_abs,
+            'pct_change_abs': pct_change_abs,
+            'peak_increase_m': incr,
+            'peak_increase_node': incr_node,
+            'base_depth_incr_m': base_depth_incr,
+            'pct_change_incr': pct_change_incr,
+        })
+    rel_depth_summary = pd.DataFrame(rel_depth_rows)
 
-    savepath = f'../outputdata/{storm_name}_V23_AllNodes_RelativeDepth.csv'
-    relative_change_in_depth.to_csv(savepath)
-    return relative_change_in_depth  # relative means relative to base case
+    # 7. Save Files
+    output_dir = f'../processed/nodes/'
+    os.makedirs(output_dir, exist_ok=True)
 
-# ANALYZE OUTPUT - VOLUME ----------------------------------------------------------------------------------------------------------
-def find_max_vol(processed_df, node_neighborhood_df, storm_name):
-    # find maxes for each node flowrate depth, each scenario
+    max_depth_df.to_csv(f'{output_dir}{storm_name}_V24_AllNodes_MaxDepth.csv', index=False)
+    relative_change_in_depth.to_csv(f'{output_dir}{storm_name}_V24_AllNodes_RelativeDepth.csv', index=False)
+    peak_depth_summary.merge(avg_depth_summary, on='scenario').to_csv(
+        f'{output_dir}{storm_name}_V24_AllNodes_DepthSummary.csv', index=False)
+    rel_depth_summary.to_csv(f'{output_dir}{storm_name}_V24_AllNodes_RelativeDepthSummary.csv', index=False)
+
+    return max_depth_df, relative_change_in_depth
+
+def find_max_flow(processed_df, node_neighborhood_df, storm_name):
     grouped_df = processed_df.groupby(level=0).max()
 
-    # select flow cols
+    flow_cols = [col for col in grouped_df.columns if col.endswith('_flow')]
+    max_flow_df = grouped_df[flow_cols]
+
+    max_flow_df = max_flow_df.reset_index()
+    max_flow_df = max_flow_df.set_index('scenario').T
+    max_flow_df = max_flow_df.reset_index().rename(columns={'index': 'node_name'})
+    max_flow_df['node_id'] = max_flow_df['node_name'].str.extract(r'([^_]+)')[0]
+    max_flow_df['neighborhood'] = max_flow_df['node_id'].map(lambda x: node_neighborhood[x][0])
+    max_flow_df['historic_stream'] = max_flow_df['node_id'].map(lambda x: node_neighborhood[x][1])
+
+    relative_change_in_flow = max_flow_df.iloc[:, 1:5].copy() #TODO fix hardcoding in the column indices for subtraction, changes w scenarios
+    relative_change_in_flow = relative_change_in_flow.sub(max_flow_df['Base'], axis = 0)
+    relative_change_in_flow['node_name'] = max_flow_df['node_name']
+    relative_change_in_flow['node_id'] = max_flow_df['node_id']
+    relative_change_in_flow['neighborhood'] = max_flow_df['neighborhood']
+
+    savepath1 = f'../processed/nodes/{storm_name}_V24_AllNodes_MaxFlow.csv'
+    savepath2 = f'../processed/nodes/{storm_name}_V24_AllNodes_RelativeFlow.csv'
+    max_flow_df.to_csv(savepath1)
+    relative_change_in_flow.to_csv(savepath2)
+    return max_flow_df, relative_change_in_flow
+
+def find_max_vol(processed_df, node_neighborhood_df, storm_name):
+    grouped_df = processed_df.groupby(level=0).max()
+
     vol_cols = [col for col in grouped_df.columns if col.endswith('_volume')]
     max_vol_df = grouped_df[vol_cols]
 
-    # make scenarios be column headers, keep node names
     max_vol_df = max_vol_df.reset_index()
     max_vol_df = max_vol_df.set_index('scenario').T
     max_vol_df = max_vol_df.reset_index().rename(columns={'index': 'node_name'})
-    # assign neighborhoods to node name by extracting node name and mapping dict
-    max_vol_df['node_id'] = max_vol_df['node_name'].str.extract(r'([^_]+)')[0] # extract all characters before the underscore drop _vol
+    max_vol_df['node_id'] = max_vol_df['node_name'].str.extract(r'([^_]+)')[0]
     max_vol_df['neighborhood'] = max_vol_df['node_id'].map(lambda x: node_neighborhood[x][0])
     max_vol_df['historic_stream'] = max_vol_df['node_id'].map(lambda x: node_neighborhood[x][1])
 
-    # determine and print peak change in flood depth
-    print("\nPeak Vol by Scenario:")
+    peak_vol_rows = []
     for scenario in max_vol_df.columns[1:-3]:
         max_val = max_vol_df[scenario].max()
         max_node = max_vol_df.loc[max_vol_df[scenario].idxmax(), 'node_name']
-        print(f"Scenario: {scenario}, Node: {max_node}, Peak Vol: {max_val:.3f} m^3")
+        peak_vol_rows.append({'scenario': scenario, 'node_name': max_node, 'peak_vol_m3': max_val})
+    peak_vol_summary = pd.DataFrame(peak_vol_rows)
 
-    # determine and print avg change in flood depth
-    print("\nAverage Vol by Scenario:")
+    avg_vol_rows = []
     for scenario in max_vol_df.columns[1:-3]:
         avg_val = max_vol_df[scenario].mean()
-        print(f"Scenario: {scenario}, Average Vol: {avg_val:.3f} m^3")
+        avg_vol_rows.append({'scenario': scenario, 'avg_vol_m3': avg_val})
+    avg_vol_summary = pd.DataFrame(avg_vol_rows)
 
-    # define new df showing relative change from base case
-    # drop node names for subtraction, then add back in
-    relative_change_in_vol = max_vol_df.iloc[:, 1:5].copy() #TODO fix harcoding in the column indicies for subtraction, changes w scenarios
+    relative_change_in_vol = max_vol_df.iloc[:, 1:5].copy() #TODO fix hardcoding in the column indices for subtraction, changes w scenarios
     relative_change_in_vol = relative_change_in_vol.sub(max_vol_df['Base'], axis = 0)
     relative_change_in_vol['node_name'] = max_vol_df['node_name']
     relative_change_in_vol['node_id'] = max_vol_df['node_id']
     relative_change_in_vol['neighborhood'] = max_vol_df['neighborhood']
 
-    # determine peak change in flood depth
-    print("\nPeak Relative Vol Change by Scenario:")
+    rel_vol_rows = []
     for scenario in relative_change_in_vol.columns[0:-3]:
-        # Find peak increase
         incr = relative_change_in_vol[scenario].max()
         incr_idx = relative_change_in_vol[scenario].idxmax()
         incr_node = relative_change_in_vol.loc[incr_idx, 'node_name']
 
-        # Find base depth at that node for percentage calculation
         base_depth_incr = max_vol_df.loc[incr_idx, 'Base']
         pct_change_incr = (incr / base_depth_incr * 100) if base_depth_incr > 0 else float('inf')
 
-        # Find peak absolute change
         abs_vals = relative_change_in_vol[scenario].abs()
         idx_abs_max = abs_vals.idxmax()
         max_val = relative_change_in_vol.loc[idx_abs_max, scenario]
         max_node = relative_change_in_vol.loc[idx_abs_max, 'node_name']
 
-        # Find base depth for peak absolute change node
         base_vol_abs = max_vol_df.loc[idx_abs_max, 'Base']
         pct_change_abs = (max_val / base_vol_abs * 100) if base_vol_abs > 0 else float('inf')
 
-        print(f"Scenario: {scenario}")
-        print(f"  Peak Absolute Vol Change: {max_val:.3f} m^3 at {max_node} (Base: {base_vol_abs:.3f} m^3, Change: {pct_change_abs:.1f}%)")
-        print(f"  Peak Vol Increase: {incr:.3f} m^3 at {incr_node} (Base: {base_depth_incr:.3f} m^3, Change: {pct_change_incr:.1f}%)")
+        avg_change_vol = relative_change_in_vol[scenario].mean()
 
-    savepath = f'../outputdata/{storm_name}_V23_AllNodes_RelativeVolume.csv'
-    relative_change_in_vol.to_csv(savepath)
-    return relative_change_in_vol  # relative means relative to base case
+        rel_vol_rows.append({
+            'scenario': scenario,
+            'avg_peak_change_m3': avg_change_vol,
+            'peak_abs_vol_change_m3': max_val, 'peak_abs_change_node': max_node,
+            'base_vol_abs_m3': base_vol_abs, 'pct_change_abs': pct_change_abs,
+            'peak_vol_increase_m3': incr, 'peak_increase_node': incr_node,
+            'base_vol_incr_m3': base_depth_incr, 'pct_change_incr': pct_change_incr,
+        })
+    rel_vol_summary = pd.DataFrame(rel_vol_rows)
+
+    savepath1 = f'../processed/nodes/{storm_name}_V24_AllNodes_MaxVolume.csv'
+    savepath2 = f'../processed/nodes/{storm_name}_V24_AllNodes_RelativeVolume.csv'
+    savepath3 = f'../processed/nodes/{storm_name}_V24_AllNodes_VolSummary.csv'
+    savepath4 = f'../processed/nodes/{storm_name}_V24_AllNodes_RelativeVolSummary.csv'
+    max_vol_df.to_csv(savepath1)
+    relative_change_in_vol.to_csv(savepath2)
+    peak_vol_summary.merge(avg_vol_summary, on='scenario').to_csv(savepath3, index=False)
+    rel_vol_summary.to_csv(savepath4, index=False)
+    return max_vol_df, relative_change_in_vol
+
+def find_max_velocty(processed_links_df, link_neighborhood_df, storm_name):
+    max_veloc_df = processed_links_df.groupby(level=0).max()
+
+    max_veloc_df = max_veloc_df.reset_index()
+    max_veloc_df = max_veloc_df.set_index('scenario').T
+    max_veloc_df = max_veloc_df.reset_index().rename(columns={'index': 'link_name'})
+    max_veloc_df['link_id'] = max_veloc_df['link_name'].str.extract(r'([^_]+)')[0]
+    max_veloc_df['neighborhood'] = max_veloc_df['link_id'].map(link_neighborhood_df)
+
+    relative_change_in_veloc = max_veloc_df.iloc[:, 1:8].copy() #TODO fix hardcoding in the column indices for subtraction, changes w scenarios
+    relative_change_in_veloc = relative_change_in_veloc.apply(pd.to_numeric, errors='coerce')
+    max_veloc_df['Base'] = pd.to_numeric(max_veloc_df['Base'], errors='coerce')
+    relative_change_in_veloc = relative_change_in_veloc.sub(max_veloc_df['Base'], axis = 0)
+    relative_change_in_veloc['link_name'] = max_veloc_df['link_name']
+    relative_change_in_veloc['link_id'] = max_veloc_df['link_id']
+    relative_change_in_veloc['neighborhood'] = max_veloc_df['neighborhood']
+
+    savepath1 = f'../processed/links/{storm_name}_V24_AllNodes_MaxVelocity.csv'
+    savepath2 = f'../processed/links/{storm_name}_V24_AllNodes_RelativeVelocity.csv'
+    max_veloc_df.to_csv(savepath1)
+    relative_change_in_veloc.to_csv(savepath2)
+    return max_veloc_df, relative_change_in_veloc
+
+def find_flood_duration(processed_df, node_neighborhood, storm_name, depth_threshold=0.05):
+    df = processed_df.reset_index()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+    depth_cols = [col for col in df.columns if col.endswith('_depth')]
+
+    first_timesteps = df.groupby('scenario').apply(lambda s: s.sort_values('timestamp').iloc[0])
+    nodes_above_at_start = set()
+    for depth_col in depth_cols:
+        if (first_timesteps[depth_col] > depth_threshold).any():
+            nodes_above_at_start.add(depth_col)
+    depth_cols = [col for col in depth_cols if col not in nodes_above_at_start]
+
+    duration_rows = []
+    for scenario, scenario_df in df.groupby('scenario'):
+        scenario_df = scenario_df.sort_values('timestamp').reset_index(drop=True)
+
+        for depth_col in depth_cols:
+            node_id = depth_col.replace('_depth', '')
+
+            flooded_timestamps = scenario_df.loc[scenario_df[depth_col] > depth_threshold, 'timestamp']
+
+            if flooded_timestamps.empty:
+                flood_duration_min = 0.0
+            else:
+                flood_duration_min = flooded_timestamps.diff().dropna().dt.total_seconds().sum() / 60
+
+            duration_rows.append({'scenario': scenario, 'node_id': node_id, 'flood_duration_min': flood_duration_min})
+
+    flood_duration_df = pd.DataFrame(duration_rows)
+
+    flood_duration_wide = flood_duration_df.pivot(index='node_id', columns='scenario',
+                                                  values='flood_duration_min').reset_index()
+    flood_duration_wide.columns.name = None
+    flood_duration_wide['neighborhood'] = flood_duration_wide['node_id'].map(lambda x: node_neighborhood[x][0])
+    flood_duration_wide['historic_stream'] = flood_duration_wide['node_id'].map(lambda x: node_neighborhood[x][1])
+
+    non_base_scenarios = [col for col in flood_duration_wide.columns if
+                          col not in ('node_id', 'neighborhood', 'historic_stream', 'Base')]
+    peak_reduction_rows = []
+    avg_reduction_rows = []
+    for scenario in non_base_scenarios:
+        reduction = flood_duration_wide['Base'] - flood_duration_wide[scenario]
+        max_val = reduction.max()
+        max_node = flood_duration_wide.loc[reduction.idxmax(), 'node_id']
+        peak_reduction_rows.append(
+            {'scenario': scenario, 'node_name': max_node, 'peak_duration_reduction_min': max_val})
+        avg_reduction_rows.append({'scenario': scenario, 'avg_duration_reduction_min': reduction.mean()})
+    avg_reduction_summary = pd.DataFrame(peak_reduction_rows).merge(pd.DataFrame(avg_reduction_rows), on='scenario')
+
+    savepath1 = f'../processed/nodes/{storm_name}_V24_AllNodes_FloodDuration.csv'
+    savepath2 = f'../processed/nodes/{storm_name}_V24_AllNodes_AvgFloodDurationReduction.csv'
+    flood_duration_wide.to_csv(savepath1, index=False)
+    avg_reduction_summary.to_csv(savepath2, index=False)
+    return flood_duration_wide, avg_reduction_summary
 
 
-
-
-# EXECUTION ------------------------------------------------------------------------------------------------------------
+###### EXECUTION ##### ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     # Clean all rpt files
     for name, inp_path in scenarios.items():
@@ -223,37 +376,51 @@ if __name__ == "__main__":
     model_path = scenarios['Base']
     model = swmmio.Model(model_path)
     node_ids = list_street_nodes(model)
-    node_ids.remove('J509-S')
+    node_ids.remove('J509-S')  # exclude unwanted (patterson park) node
 
-    # Loop over ALL storms automatically
-    for selected_storm, storm_ts in storms.items():
-        print(f"\n{'='*60}")
-        print(f"Processing storm: {selected_storm}")
+    # Find street link names
+    model_path = scenarios['Base']
+    model = swmmio.Model(model_path)
+    link_ids = list_street_links(model)
+    link_ids.remove('C509-S')
+    link_ids.remove('C6-S')
+    link_ids.remove('C797-S')
 
-        scenario_node_results = {}
+    # Change storm execution
+    selected_storm = '2x_fullstorm_6_27_23'
+    storm_ts = storms[selected_storm]
 
-        for scenario_name, inp_path in scenarios.items():
-            print(f"  Running scenario: {scenario_name}")
+    # Run simulations
+    scenario_node_results = {}
+    scenario_link_results = {}
 
-            tmp_inp = os.path.join(
-                tempfile.gettempdir(),
-                f'{scenario_name}_{selected_storm}.inp')
+    for scenario_name, inp_path in scenarios.items():
+        print(f"Running scenario: {scenario_name} with storm {selected_storm}")
 
-            storm_timeseries(inp_path, storm_ts, tmp_inp)
-            df_nodes = run_pyswmm(tmp_inp, node_ids)
-            scenario_node_results[scenario_name] = df_nodes
+        tmp_inp = os.path.join(
+            tempfile.gettempdir(),
+            f'{scenario_name}_{selected_storm}.inp')
 
-        # Save simulation results
-        processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
-        processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
-        processed_nodes_df.to_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv')
+        storm_timeseries(inp_path, storm_ts, tmp_inp)
 
-        # Run analysis immediately after each storm — no user input needed
-        processed_df = pd.read_csv(f'../outputdata/{selected_storm}_simV23_AllNodes.csv', index_col=[0, 1])
+        df_nodes, df_links = run_pyswmm(tmp_inp, node_ids, link_ids)
+        scenario_node_results[scenario_name] = df_nodes
+        scenario_link_results[scenario_name] = df_links
 
-        find_max_depth(processed_df, node_neighborhood, selected_storm)
-        find_max_vol(processed_df, node_neighborhood, selected_storm)
+    # Combine into multiindex dataframes
+    processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
+    processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
 
+    processed_links_df = pd.concat(scenario_link_results, names=['scenario'])
+    processed_links_df.index.set_names(['scenario', 'row'], inplace=True)
 
+    # Save raw simulation outputs
+    processed_nodes_df.to_csv(f'../processed/nodes/{selected_storm}_simV24_AllNodes.csv')
+    processed_links_df.to_csv(f'../processed/links/{selected_storm}_simV24_AllLinks.csv')
 
-
+    # Run analysis directly on simulation results
+    find_max_depth(processed_nodes_df, node_neighborhood, selected_storm)
+    #find_max_flow(processed_nodes_df, node_neighborhood, selected_storm)
+    find_max_vol(processed_nodes_df, node_neighborhood, selected_storm)
+    #find_max_velocty(processed_links_df, link_neighborhood, selected_storm)
+    find_flood_duration(processed_nodes_df, node_neighborhood, selected_storm)

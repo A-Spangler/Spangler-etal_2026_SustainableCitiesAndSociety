@@ -1,97 +1,18 @@
 # By: Ava Spangler
-# Date: 01/31/2026
+# Date: 6/26/2025
 # Description: This code takes in processed and analyzed data and creates visualizations
-# from Spangler-etal_2026_SustainableCitiesandSociety
 
 # IMPORTS --------------------------------------------------------------------------------------------------------------
-inport os
 import pandas as pd
+import os
 import matplotlib as mpl
+import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from scripts.config import scenarios, storms
 
+# DEFINITIONS ----------------------------------------------------------------------------------------------------------
+# can use BE_nodes to plot a subset of locations. BE_nodes is sequential, upstream to downstream.
 
-# FIGURE 5 -------------------------------------------------------------------------------------------------------------
-# Processes SWMM simulation output for GIS export.
-def process_scenarios_to_gis(input_csv, coords_file, output_dir, base_scenario_name='Base'):
-
-    # Set up output directories
-    processed_dir = os.path.join(output_dir, 'GIS_exports')
-    relative_dir = os.path.join(processed_dir, 'relative_depth')
-    os.makedirs(processed_dir, exist_ok=True)
-    os.makedirs(relative_dir, exist_ok=True)
-
-    # Load data
-    df = pd.read_csv(input_csv, parse_dates=['timestamp'])
-    coords = pd.read_excel(coords_file)
-    coords['node_id'] = coords['node_id'].astype(float)
-
-    depth_cols = [c for c in df.columns if c.endswith('_depth')]
-
-    # clean node_id strings
-    def clean_node_id(series):
-        return (
-            series
-            .str.replace('_depth', '', regex=False)
-            .str.replace(r'^J', '', regex=True)
-            .str.replace(r'-S$', '', regex=True)
-            .astype(float)
-        )
-
-    # Build base long-form df for relative depth calculations
-    base_df = df[df['scenario'] == base_scenario_name].copy()
-    if base_df.empty:
-        raise ValueError(f"Base scenario '{base_scenario_name}' not found in CSV.")
-
-    base_long = (
-        base_df[['timestamp'] + depth_cols]
-        .rename(columns={'timestamp': '24dt'})
-        .melt(id_vars='24dt', var_name='node_id', value_name='depth_m_base')
-    )
-    base_long['node_id'] = clean_node_id(base_long['node_id'])
-
-    # Process all scenarios
-    for scenario, scen_df in df.groupby('scenario'):
-        print(f'Formatting scenario: {scenario}')
-
-        long_df = (
-            scen_df[['timestamp'] + depth_cols]
-            .copy()
-            .rename(columns={'timestamp': '24dt'})
-            .melt(id_vars='24dt', var_name='node_id', value_name='depth_m')
-        )
-        long_df['node_id'] = clean_node_id(long_df['node_id'])
-
-        # Merge coordinates
-        formatted = long_df.merge(coords, on='node_id', how='left')
-
-        # Save per-scenario processed file
-        out_file = os.path.join(processed_dir, f'{scenario}_results_processed.csv')
-        formatted.to_csv(out_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
-        print(f'  → saved processed file: {out_file}')
-
-        # Skip relative depth for base scenario
-        if scenario == base_scenario_name:
-            continue
-
-        # Compute and save relative depth vs. base
-        merged = formatted.merge(base_long, on=['24dt', 'node_id'], how='left')
-        merged['relative_depth_m'] = merged['depth_m'] - merged['depth_m_base']
-        merged = merged[['24dt', 'node_id', 'depth_m', 'depth_m_base', 'relative_depth_m', 'x', 'y']]
-
-        relative_file = os.path.join(relative_dir, f'{scenario}_relative_depth.csv')
-        merged.to_csv(relative_file, index=False, date_format='%Y-%m-%d %H:%M:%S')
-        print(f'  → saved relative depth file: {relative_file}')
-
-    print(f'\nDone. Outputs saved to: {processed_dir}')
-
-
-
-
-
-
-# FIGURE 6 ----------------------------------------------------------------------------------------------------------
 def depth_stackplot(relative_depth_df, name):
     fig, ax = plt.subplots(figsize=(10, 4))
     plot_cols = ['V', 'I', 'V&I']
@@ -135,11 +56,11 @@ def depth_stackplot(relative_depth_df, name):
 
     plt.tight_layout()
     #plt.show()
-    save_path = f'../figures/{name}_relative_stackplot_depth_V23.png'
+    save_path = f'../plots/nodes/{name}_relative_stackplot_depth_V24.png'
+    svg_path = f'../plots/nodes/{name}_relative_stackplot_depth_V24.svg'
     plt.savefig(save_path)
-    
+    plt.savefig(svg_path)
 
-# Fig 6 supplementary version
 def volume_stackplot(relative_vol_df, name):
     fig, ax = plt.subplots(figsize=(10, 4))
     plot_cols = ['V', 'I', 'V&I']
@@ -183,28 +104,24 @@ def volume_stackplot(relative_vol_df, name):
 
     plt.tight_layout()
     #plt.show()
-    save_path = f'../figures/{name}_relative_stackplot_volume_V23.png'
+    save_path = f'../plots/nodes/{name}_relative_stackplot_volume_V24.png'
+    svg_path = f'../plots/nodes/{name}_relative_stackplot_volume_V24.svg'
     plt.savefig(save_path)
-
-
-
-
-
+    plt.savefig(svg_path)
 
 # EXECUTION ------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    for selected_storm in storms.keys():
-        process_scenarios_to_gis(
-            input_csv=f'../processed/nodes/{selected_storm}_simV23_AllNodes.csv',
-            coords_file='../inputdata/Node_Coords.xlsx',
-            output_dir='../figures')
+    # load dfs
 
-        relative_depth_df = pd.read_csv(
-            f'../outputdata/{selected_storm}_V23_AllNodes_RelativeDepth.csv').drop(columns=['Unnamed: 0'], errors='ignore')
+    max_depth_df = pd.read_csv('../processed/nodes/6_27_23_V24_AllNodes_MaxDepth.csv')
+    relative_depth_df = pd.read_csv('../processed/nodes/6_27_23_V24_AllNodes_RelativeDepth.csv').drop(['Unnamed: 0'],axis=1)
+    relative_volume_df = pd.read_csv('../processed/nodes/6_27_23_V24_AllNodes_RelativeVolume.csv').drop(['Unnamed: 0'], axis=1)
+    max_volume_df = pd.read_csv( '../processed/nodes/6_27_23_V24_AllNodes_MaxVolume.csv').drop(['Unnamed: 0'], axis=1)
+    depth_ts_df = pd.read_csv('../processed/nodes/6_27_23_simV24_AllNodes.csv')
 
-        relative_volume_df = pd.read_csv(
-            f'../outputdata/{selected_storm}_V23_AllNodes_RelativeVolume.csv').drop(columns=['Unnamed: 0'], errors='ignore')
-
-        depth_stackplot(relative_depth_df, selected_storm)
-        volume_stackplot(relative_volume_df, selected_storm)
+    storm_name = '6_27_23'
+    #execute, note 'relative' functions means the result is relative to base case
+    depth_stackplot(relative_depth_df, storm_name)
+    volume_stackplot(relative_volume_df, storm_name)
+    node_neighborhood_df = pd.read_excel('../processed/nodes/Node_Neighborhoods.xlsx')
 
