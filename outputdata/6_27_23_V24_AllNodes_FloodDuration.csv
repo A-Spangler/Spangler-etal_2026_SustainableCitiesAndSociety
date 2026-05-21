@@ -1,0 +1,127 @@
+node_id,Base,I,V,V&I,neighborhood,historic_stream
+J1-S,1155.0,1155.0,1150.0,1155.0,Clifton Park,Canal Street Creek
+J10-S,1150.0,1140.0,1145.0,1135.0,Downtown,"Southside, Drains to Harbor"
+J105-S,1140.0,1140.0,1140.0,1140.0,Downtown,"Southside, Drains to Harbor"
+J116-S,1150.0,1145.0,1155.0,1145.0,Downtown,"Southside, Drains to Harbor"
+J119-S,1120.0,1110.0,1125.0,1110.0,Downtown,"Southside, Drains to Harbor"
+J128-S,1120.0,345.0,1120.0,340.0,Canton,Harris Creek
+J130-S,1205.0,1230.0,1225.0,1225.0,Downtown,"Southside, Drains to Harbor"
+J131-S,1125.0,350.0,1120.0,350.0,Downtown,"Southside, Drains to Harbor"
+J136-S,1145.0,1135.0,1145.0,1135.0,Downtown,"Southside, Drains to Harbor"
+J138-S,1175.0,1180.0,1170.0,1180.0,Downtown,"Southside, Drains to Harbor"
+J141-S,1140.0,1140.0,1135.0,1140.0,Downtown,"Southside, Drains to Harbor"
+J157-S,1155.0,1145.0,1150.0,1140.0,Downtown,"Southside, Drains to Harbor"
+J163-S,1150.0,1155.0,1150.0,1150.0,Downtown,"Southside, Drains to Harbor"
+J165-S,1135.0,1130.0,1130.0,1130.0,Federal Hill,"Southside, Drains to Harbor"
+J171-S,1125.0,1120.0,1120.0,1120.0,Canton,"Northside, Drains to Harbor"
+J177-S,1145.0,1145.0,1140.0,1145.0,Federal Hill,"Southside, Drains to Harbor"
+J182-S,1140.0,1135.0,1145.0,1135.0,Federal Hill,"Southside, Drains to Harbor"
+J191-S,1135.0,1140.0,1140.0,1140.0,Fells Point,Canal Street Creek
+J204-S,1150.0,1145.0,1145.0,1145.0,Fells Point,Canal Street Creek
+J208-S,1195.0,1195.0,1185.0,1190.0,Downtown,"Southside, Drains to Harbor"
+J211-S,1130.0,1130.0,1135.0,1130.0,Fells Point,Canal Street Creek
+J227-S,1185.0,1175.0,1185.0,1175.0,Locust Point,"Southside, Drains to Harbor"
+J231-S,0.0,0.0,0.0,0.0,Locust Point,"Southside, Drains to Harbor"
+J232-S,0.0,0.0,0.0,0.0,Locust Point,"Southside, Drains to Harbor"
+J234-S,1160.0,1160.0,1160.0,1160.0,Locust Point,"Southside, Drains to Harbor"
+J238-S,1115.0,1110.0,1110.0,1110.0,Locust Point,"Southside, Drains to Harbor"
+J240-S,1150.0,1145.0,1150.0,1145.0,Locust Point,"Southside, Drains to Harbor"
+J245-S,1140.0,1130.0,1140.0,1130.0,Locust Point,"Southside, Drains to Harbor"
+J253-S,1135.0,1120.0,1130.0,1120.0,Eager Park,Canal Street Creek
+J260-S,1135.0,1135.0,1140.0,1130.0,Broadway East,Canal Street Creek
+J266-S,1140.0,1130.0,1135.0,1130.0,Clifton Park,Canal Street Creek
+J268-S,1115.0,1110.0,1110.0,1110.0,Clifton Park,Canal Street Creek
+J27-S,1110.0,1110.0,1115.0,1110.0,Locust Point,"Southside, Drains to Harbor"
+J273-S,1105.0,1105.0,1105.0,1105.0,Clifton Park,Canal Street Creek
+J278-S,1135.0,1120.0,1135.0,1120.0,Broadway East,Canal Street Creek
+J280-S,1165.0,1155.0,1160.0,1150.0,Broadway East,Canal Street Creek
+J3-S,1150.0,1135.0,1155.0,1135.0,Fells Point,"Northside, Drains to Harbor"
+J328-S,1225.0,1225.0,1220.0,1220.0,Broadway East,Canal Street Creek
+J329-S,1145.0,1140.0,1145.0,1140.0,Broadway East,Canal Street Creek
+J33-S,1160.0,1155.0,1160.0,1155.0,Locust Point,"Southside, Drains to Harbor"
+J338-S,1150.0,1135.0,1145.0,1130.0,Eager Park,Canal Street Creek
+J34-S,1135.0,1130.0,1130.0,1130.0,Locust Point,"Southside, Drains to Harbor"
+J361-S,1190.0,1175.0,1185.0,1175.0,Eager Park,Canal Street Creek
+J366-S,1130.0,1115.0,1125.0,1110.0,Eager Park,Canal Street Creek
+J385-S,1165.0,1170.0,1160.0,1160.0,Broadway East,Harris Creek
+J4-S,1130.0,1130.0,1130.0,1130.0,Canton,"Northside, Drains to Harbor"
+J413-S,1190.0,1195.0,1190.0,1190.0,Broadway East,Harris Creek
+J42-S,1130.0,1130.0,1130.0,1130.0,Locust Point,"Southside, Drains to Harbor"
+J421-S,1155.0,1145.0,1155.0,1145.0,McElderry Park,Harris Creek
+J433-S,1160.0,1155.0,1155.0,1155.0,Madison-Eastend,Harris Creek
+J437-S,1135.0,1135.0,1135.0,1135.0,Patterson Park,Harris Creek
+J438-S,1125.0,355.0,1130.0,355.0,McElderry Park,Harris Creek
+J45-S,1115.0,1110.0,1110.0,1110.0,Locust Point,"Southside, Drains to Harbor"
+J450-S,1145.0,1140.0,1145.0,1140.0,Madison-Eastend,Harris Creek
+J456-S,1140.0,1145.0,1135.0,1145.0,Orangeville,Harris Creek
+J46-S,1145.0,1140.0,1140.0,1140.0,Locust Point,"Southside, Drains to Harbor"
+J460-S,1150.0,1140.0,1150.0,1140.0,Orangeville,Harris Creek
+J461-S,1135.0,1130.0,1135.0,1130.0,Baltimore Highlands,Harris Creek
+J471-S,1190.0,1195.0,1185.0,1195.0,Orangeville,Harris Creek
+J480-S,1170.0,1170.0,1170.0,1170.0,McElderry Park,Harris Creek
+J484-S,1155.0,1145.0,1155.0,1145.0,Baltimore Highlands,Harris Creek
+J49-S,1130.0,1130.0,1130.0,1130.0,Washington Hill,Canal Street Creek
+J491-S,1150.0,1140.0,1155.0,1140.0,Kresson,Harris Creek
+J492-S,1130.0,1130.0,1130.0,1130.0,Baltimore Highlands,Harris Creek
+J5-S,1140.0,1130.0,1140.0,1130.0,Canton,"Northside, Drains to Harbor"
+J50-S,1135.0,1135.0,1135.0,1135.0,Washington Hill,Canal Street Creek
+J506-S,1200.0,1195.0,1195.0,1195.0,Baltimore Highlands,Harris Creek
+J507-S,1170.0,1155.0,1165.0,1155.0,Patterson Park,Harris Creek
+J512-S,1140.0,1120.0,1135.0,1120.0,Patterson Park,Harris Creek
+J534-S,1150.0,1145.0,1145.0,1145.0,Patterson Park,Harris Creek
+J539-S,1165.0,1165.0,1160.0,1160.0,Canton,"Northside, Drains to Harbor"
+J541-S,1150.0,1145.0,1145.0,1145.0,Canton Industrial Area,"Northside, Drains to Harbor"
+J548-S,1245.0,1240.0,1235.0,1235.0,Canton,"Northside, Drains to Harbor"
+J556-S,1150.0,1150.0,1150.0,1150.0,Canton,Harris Creek
+J567-S,1130.0,1125.0,1130.0,1125.0,Berea,Armistead Creek
+J568-S,1125.0,1115.0,1125.0,1115.0,Berea,Armistead Creek
+J571-S,1110.0,1105.0,1105.0,1105.0,Berea,Armistead Creek
+J576-S,355.0,340.0,355.0,5.0,Dunbar-Broadway,Canal Street Creek
+J578-S,1135.0,1125.0,1135.0,1125.0,Dunbar-Broadway,Canal Street Creek
+J586-S,0.0,0.0,0.0,0.0,Dunbar-Broadway,Canal Street Creek
+J587-S,1240.0,1210.0,1230.0,1205.0,Downtown,"Southside, Drains to Harbor"
+J592-S,1125.0,355.0,1130.0,355.0,Dunbar-Broadway,Canal Street Creek
+J60-S,1165.0,1165.0,1160.0,1165.0,Downtown,"Southside, Drains to Harbor"
+J609-S,1140.0,1140.0,1135.0,1140.0,Dunbar-Broadway,Canal Street Creek
+J619-S,1155.0,1155.0,1155.0,1155.0,Dunbar-Broadway,Canal Street Creek
+J62-S,1165.0,1150.0,1165.0,1150.0,Downtown,"Southside, Drains to Harbor"
+J620-S,1215.0,1215.0,1205.0,1205.0,Broadway East,Harris Creek
+J624-S,1225.0,1225.0,1210.0,1210.0,Broadway East,Harris Creek
+J632-S,1175.0,1175.0,1170.0,1175.0,Eager Park,Canal Street Creek
+J637-S,1155.0,1135.0,1155.0,1135.0,Eager Park,Canal Street Creek
+J640-S,1135.0,350.0,1130.0,350.0,Eager Park,Canal Street Creek
+J659-S,1215.0,1215.0,1210.0,1215.0,Baltimore Highlands,Harris Creek
+J672-S,1145.0,1135.0,1140.0,1135.0,Canton,Harris Creek
+J675-S,1180.0,1180.0,1180.0,1180.0,Canton,Harris Creek
+J686-S,1135.0,1135.0,1135.0,1135.0,Canton,Harris Creek
+J694-S,0.0,0.0,0.0,0.0,Canton,Harris Creek
+J695-S,1120.0,1115.0,1125.0,1115.0,Canton,Harris Creek
+J7-S,1165.0,1160.0,1160.0,1160.0,Canton Industrial Area,"Northside, Drains to Harbor"
+J71-S,1170.0,1155.0,1165.0,1155.0,Federal Hill,"Southside, Drains to Harbor"
+J712-S,1135.0,1130.0,1130.0,1130.0,Patterson Park,Harris Creek
+J714-S,1180.0,1180.0,1175.0,1180.0,Upper Fells Point,"Northside, Drains to Harbor"
+J72-S,1130.0,1125.0,1125.0,1125.0,Federal Hill,"Southside, Drains to Harbor"
+J722-S,1120.0,1120.0,1120.0,1120.0,Fells Point,"Northside, Drains to Harbor"
+J732-S,1170.0,1155.0,1170.0,1155.0,Fells Point,"Northside, Drains to Harbor"
+J733-S,1140.0,1140.0,1140.0,1140.0,Canton,"Northside, Drains to Harbor"
+J748-S,350.0,335.0,350.0,5.0,Washington Hill,Canal Street Creek
+J749-S,1145.0,1135.0,1140.0,1135.0,Fells Point,Canal Street Creek
+J751-S,1145.0,1145.0,1145.0,1145.0,Fells Point,"Northside, Drains to Harbor"
+J756-S,1260.0,1260.0,1250.0,1255.0,Upper Fells Point,"Northside, Drains to Harbor"
+J758-S,1135.0,1135.0,1140.0,1135.0,Fells Point,"Northside, Drains to Harbor"
+J760-S,1115.0,1115.0,1115.0,1115.0,Fells Point,"Northside, Drains to Harbor"
+J761-S,1150.0,1130.0,1145.0,1130.0,Fells Point,Canal Street Creek
+J762-S,1125.0,1125.0,1125.0,1125.0,Canton Industrial Area,"Northside, Drains to Harbor"
+J764-S,1130.0,1125.0,1130.0,1125.0,Fells Point,"Northside, Drains to Harbor"
+J765-S,340.0,0.0,1105.0,0.0,Fells Point,"Northside, Drains to Harbor"
+J772-S,1170.0,1170.0,1165.0,1165.0,Canton,"Northside, Drains to Harbor"
+J78-S,1140.0,1140.0,1140.0,1140.0,Federal Hill,"Southside, Drains to Harbor"
+J782-S,1115.0,1120.0,1120.0,1120.0,Patterson Park,Harris Creek
+J787-S,1135.0,1130.0,1130.0,1130.0,Berea,Armistead Creek
+J789-S,1130.0,1115.0,1130.0,1115.0,Dunbar-Broadway,Canal Street Creek
+J792-S,1205.0,1205.0,1205.0,1205.0,Canton,"Northside, Drains to Harbor"
+J799-S,340.0,0.0,340.0,0.0,Fells Point,"Northside, Drains to Harbor"
+J8-S,1195.0,1200.0,1200.0,1200.0,Canton Industrial Area,"Northside, Drains to Harbor"
+J80-S,1135.0,1130.0,1130.0,1130.0,Federal Hill,"Southside, Drains to Harbor"
+J801-S,1120.0,345.0,1125.0,345.0,Broadway East,Canal Street Creek
+J88-S,1165.0,1160.0,1160.0,1160.0,Federal Hill,"Southside, Drains to Harbor"

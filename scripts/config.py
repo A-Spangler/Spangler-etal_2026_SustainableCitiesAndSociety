@@ -3,10 +3,10 @@
 # Description: This code provides paths for Baltimore_SWMM_analysis.py to reference
 
 scenarios = {
-    'Base': r"/inputdata/Inner_Harbor_Model_V23.inp",
-    'V': r"/inputdata//Inner_Harbor_Model_V23_vacants.inp",
-    'I': r"/inputdata/Inner_Harbor_Model_V23_inlets.inp",
-    'V&I': r"/inputdata/Inner_Harbor_Model_V23_inlets+vacants.inp"
+    'Base': r"../inputdata/Inner_Harbor_Model_V24.inp",
+    'V': r"../inputdata//Inner_Harbor_Model_V24_vacants.inp",
+    'I': r"../inputdata/Inner_Harbor_Model_V24_inlets.inp",
+    'V&I': r"../inputdata/Inner_Harbor_Model_V24_inlets+vacants.inp"
 }
 
 storms = {
@@ -16,10 +16,10 @@ storms = {
 }
 
 rpts = {
-    'Base': r"/inputdata/Inner_Harbor_Model_V23.rpt",
-    'I': r"/inputdata/Inner_Harbor_Model_V23_inlets.rpt",
-    'V&I': r"/inputdata/Inner_Harbor_Model_V23_inlets+vacants.rpt",
-    'V': r"/inputdata/Inner_Harbor_Model_V23_vacants.inp",
+    'Base': r"/inputdata/Inner_Harbor_Model_V24.rpt",
+    'I': r"/inputdata/Inner_Harbor_Model_V24_inlets.rpt",
+    #'V&I': r"/inputdata/Inner_Harbor_Model_V24_inlets+vacants.rpt",
+    'V': r"/inputdata/Inner_Harbor_Model_V24_vacants.inp",
 }
 
 model_path = 'inputdata/Inner_Harbor_Model_V23.inp'

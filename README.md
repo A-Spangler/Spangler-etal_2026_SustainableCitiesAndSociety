@@ -2,7 +2,7 @@
 
 # Spangler-etal_2026_SustainableCitiesAndSociety
 
-**Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore**
+**Co-Designing Stormwater Adaptations Through Community-Informed Urban Pluvial Flood Modeling**
 
 Ava Spangler<sup>1,2\*</sup>, Antonia Hadjimichael<sup>1,2</sup>, Carlin Blash<sup>1</sup>, Mahsa Adib<sup>3,4</sup>, Hong Wu<sup>3</sup>, Mark Cameron<sup>5</sup>, Claire Welty<sup>6,7</sup>, Doris Minor-Terrell<sup>8</sup>, Benjamin Zaitchik<sup>9</sup>.
 
@@ -18,29 +18,7 @@ Ava Spangler<sup>1,2\*</sup>, Antonia Hadjimichael<sup>1,2</sup>, Carlin Blash<s
 - \* corresponding author:  aas6791@psu.edu
 
 ## Abstract
-The intensification of the hydrologic cycle due to climate change poses a
-threat to urban areas with aging and under-sized water infrastructure sys-
-tems which cannot adequately manage intense storm events. In the City of
-Baltimore, Maryland, stormwater infrastructure is challenged by stormwater
-(pluvial) flooding, which has damaged housing and disrupted transportation
-networks. In this study, a combination of community engagement and hydro-
-logic modeling is applied to develop and assess prospective urban flooding
-adaptations. Community engagement drives the development of an urban
-flooding model (EPA Storm Water Management Model) for the Baltimore
-Harbor watershed, integrating complex surface and subsurface stormwater in-
-frastructure data and community insights. Adaptations of interest to stake-
-holders, including green and gray infrastructure strategies, are simulated.
-Enhanced infrastructure maintenance is the most effective adaptation for
-reducing flood depths, but has varied effects across the watershed. Spatially-
-concentrated greening provides limited benefit to the watershed as a whole,
-but moderate benefit in community priority areas. Together, these adap-
-tations have the potential to reduce flood depths by as much as 58% in
-select locations, which would greatly reducing property damage and trans-
-portation impacts, which are primary concerns of stakeholders. This work
-builds on the growing body of collaborative modeling literature and shows
-that community-engaged research can increase the relevance and credibility
-of model representations, resulting in more relevant and usable insights for
-communities working to enhance climate resiliency.
+The intensification of the hydrologic cycle due to climate change poses a threat to urban areas with aging and under-sized water infrastructure systems which often fail to adequately manage intense storm events. The City of Baltimore, Maryland, experiences recurrent stormwater (pluvial) flooding that overwhelms drainage infrastructure, damages housing and disrupts transportation. Adaptations are urgently needed to manage this threat; however, flood mitigation strategies frequently fail to integrate the lived experiences of residents into infrastructure planning. Engaging communities in pluvial flood modeling is often limited to hazard identification or model validation, while collaborative development of adaptation strategies is uncommon. This study presents a co-designed urban flood modeling framework in which community and technical experts directly inform flood model development and adaptation design through long-term and iterative engagement. The EPA Storm Water Management Model (SWMM) is used to integrate city-provided drainage infrastructure data, community-mapped flood locations, and local expert knowledge of local hydrologic processes. Three adaptations of interest to stakeholders, including green infrastructure, enhanced maintenance, and a combination of both, are simulated and compared across three scaled rainfall scenarios. Enhanced infrastructure maintenance is found to be the most effective adaptation, reducing flood depths at priority intersections, though with spatially variable effects across the watershed. Spatially concentrated greening provides limited benefit to the watershed as a whole. Together, these adaptations have the potential to reduce flood depths by as much as 55% in select locations, which would greatly reduce impacts on local stakeholders. This work demonstrates that co-produced flood models can serve as shared tools for learning and deliberation. Furthermore, these models can test adaptation options that are grounded in both hydrologic process and community priorities, resulting in more relevant and usable insights for communities working to prepare for climate impacts.  
 
 ## Journal reference
 Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty, C., Minor-Terrell, D., Zaitchik, B., Collaborative Development of a Pluvial Flood Model and Adaptation Strategies to Advance Resilience in Baltimore. (Sumbitted to Sustainable Cities and Society February 2026)

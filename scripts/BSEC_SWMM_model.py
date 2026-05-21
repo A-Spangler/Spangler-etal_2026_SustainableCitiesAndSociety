@@ -29,21 +29,11 @@ def list_street_nodes(model): #separate out above ground storage nodes from belo
     street_node_names = [k for k in node_names if '-S' in k]
     return street_node_names
 
-def list_street_links(model): #separate out above ground storage nodes from below ground junctions
-    link_df = model.links.dataframe
-    link_df = link_df.reset_index()
-    link_names = link_df['Name'].tolist()
-    street_link_names = [q for q in link_names if '-S' in q]
-    return street_link_names
-
-def run_pyswmm(inp_path, node_ids, link_ids):
+def run_pyswmm(inp_path, node_ids):
     output_nodes = {node: {'depth': [], 'flow': [], 'volume': []} for node in node_ids}
-    output_links = {link: {'velocity': []} for link in link_ids}
-
     time_stamps = []
     with Simulation(inp_path) as sim:
         nodes = {node_id: Nodes(sim)[node_id] for node_id in node_ids}
-        links = {link_id: Links(sim)[link_id] for link_id in link_ids}
         sim.step_advance(300) #lets python access sim during run (300 sec = 5min intervals)
 
         for step in enumerate(sim):
@@ -52,34 +42,21 @@ def run_pyswmm(inp_path, node_ids, link_ids):
                 output_nodes[node_id]['depth'].append(node.depth*ft_to_m) # ft to m
                 output_nodes[node_id]['flow'].append(node.total_inflow*cfs_to_cms) #m**3/s
                 output_nodes[node_id]['volume'].append(node.volume * cfs_to_cms) #m**3
-            for link_id, link in links.items():
-                output_links[link_id]['velocity'].append((link.flow/((link.ds_xsection_area + link.ups_xsection_area)/2)) * ft_to_m) #ft/s to meter/s
 
         node_data = {'timestamp': time_stamps}
         for node_id in node_ids:
             node_data[f'{node_id}_depth'] = output_nodes[node_id]['depth']
             node_data[f'{node_id}_flow'] = output_nodes[node_id]['flow']
             node_data[f'{node_id}_volume'] = output_nodes[node_id]['volume']
-        link_data = {'timestamp': time_stamps}
-        for link_id in link_ids:
-            link_data[f'{link_id}_velocity'] = output_links[link_id]['velocity']
 
         df_node_data = pd.DataFrame(node_data).copy()
         numeric_cols = df_node_data.columns.drop('timestamp')
         df_node_data[numeric_cols] = df_node_data[numeric_cols].apply(pd.to_numeric, errors='coerce')
-        df_link_data = pd.DataFrame(link_data).copy()
-        numeric_cols = df_link_data.columns.drop('timestamp')
-        df_link_data[numeric_cols] = df_link_data[numeric_cols].apply(pd.to_numeric, errors='coerce')
-        return df_node_data, df_link_data
-
+        return df_node_data
 
 # define node neighborhood tuple
-node_neighborhood_df = pd.read_excel(f'../processed/nodes/Node_Neighborhoods.xlsx')
+node_neighborhood_df = pd.read_excel(f'../inputdata/Node_Neighborhoods.xlsx')
 node_neighborhood = dict(zip(node_neighborhood_df['street_node_id'],zip(node_neighborhood_df['neighborhood'], node_neighborhood_df['historic_stream'])))
-
-# define link neighborhood tuple
-link_neighborhood_df = pd.read_excel(f'../processed/links/Link_Neighborhoods.xlsx')
-link_neighborhood = dict(zip(link_neighborhood_df['link_id'],(link_neighborhood_df['neighborhood'])))
 
 ##### data analysis functions #####
 def find_max_depth(processed_df, node_neighborhood, storm_name):
@@ -176,7 +153,7 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
     rel_depth_summary = pd.DataFrame(rel_depth_rows)
 
     # 7. Save Files
-    output_dir = f'../processed/nodes/'
+    output_dir = f'../outputdata'
     os.makedirs(output_dir, exist_ok=True)
 
     max_depth_df.to_csv(f'{output_dir}{storm_name}_V24_AllNodes_MaxDepth.csv', index=False)
@@ -206,8 +183,8 @@ def find_max_flow(processed_df, node_neighborhood_df, storm_name):
     relative_change_in_flow['node_id'] = max_flow_df['node_id']
     relative_change_in_flow['neighborhood'] = max_flow_df['neighborhood']
 
-    savepath1 = f'../processed/nodes/{storm_name}_V24_AllNodes_MaxFlow.csv'
-    savepath2 = f'../processed/nodes/{storm_name}_V24_AllNodes_RelativeFlow.csv'
+    savepath1 = f'../outputdata/{storm_name}_V24_AllNodes_MaxFlow.csv'
+    savepath2 = f'../outputdata/{storm_name}_V24_AllNodes_RelativeFlow.csv'
     max_flow_df.to_csv(savepath1)
     relative_change_in_flow.to_csv(savepath2)
     return max_flow_df, relative_change_in_flow
@@ -273,38 +250,15 @@ def find_max_vol(processed_df, node_neighborhood_df, storm_name):
         })
     rel_vol_summary = pd.DataFrame(rel_vol_rows)
 
-    savepath1 = f'../processed/nodes/{storm_name}_V24_AllNodes_MaxVolume.csv'
-    savepath2 = f'../processed/nodes/{storm_name}_V24_AllNodes_RelativeVolume.csv'
-    savepath3 = f'../processed/nodes/{storm_name}_V24_AllNodes_VolSummary.csv'
-    savepath4 = f'../processed/nodes/{storm_name}_V24_AllNodes_RelativeVolSummary.csv'
+    savepath1 = f'../outputdata/{storm_name}_V24_AllNodes_MaxVolume.csv'
+    savepath2 = f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolume.csv'
+    savepath3 = f'../outputdata/{storm_name}_V24_AllNodes_VolSummary.csv'
+    savepath4 = f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolSummary.csv'
     max_vol_df.to_csv(savepath1)
     relative_change_in_vol.to_csv(savepath2)
     peak_vol_summary.merge(avg_vol_summary, on='scenario').to_csv(savepath3, index=False)
     rel_vol_summary.to_csv(savepath4, index=False)
     return max_vol_df, relative_change_in_vol
-
-def find_max_velocty(processed_links_df, link_neighborhood_df, storm_name):
-    max_veloc_df = processed_links_df.groupby(level=0).max()
-
-    max_veloc_df = max_veloc_df.reset_index()
-    max_veloc_df = max_veloc_df.set_index('scenario').T
-    max_veloc_df = max_veloc_df.reset_index().rename(columns={'index': 'link_name'})
-    max_veloc_df['link_id'] = max_veloc_df['link_name'].str.extract(r'([^_]+)')[0]
-    max_veloc_df['neighborhood'] = max_veloc_df['link_id'].map(link_neighborhood_df)
-
-    relative_change_in_veloc = max_veloc_df.iloc[:, 1:8].copy() #TODO fix hardcoding in the column indices for subtraction, changes w scenarios
-    relative_change_in_veloc = relative_change_in_veloc.apply(pd.to_numeric, errors='coerce')
-    max_veloc_df['Base'] = pd.to_numeric(max_veloc_df['Base'], errors='coerce')
-    relative_change_in_veloc = relative_change_in_veloc.sub(max_veloc_df['Base'], axis = 0)
-    relative_change_in_veloc['link_name'] = max_veloc_df['link_name']
-    relative_change_in_veloc['link_id'] = max_veloc_df['link_id']
-    relative_change_in_veloc['neighborhood'] = max_veloc_df['neighborhood']
-
-    savepath1 = f'../processed/links/{storm_name}_V24_AllNodes_MaxVelocity.csv'
-    savepath2 = f'../processed/links/{storm_name}_V24_AllNodes_RelativeVelocity.csv'
-    max_veloc_df.to_csv(savepath1)
-    relative_change_in_veloc.to_csv(savepath2)
-    return max_veloc_df, relative_change_in_veloc
 
 def find_flood_duration(processed_df, node_neighborhood, storm_name, depth_threshold=0.05):
     df = processed_df.reset_index()
@@ -356,8 +310,8 @@ def find_flood_duration(processed_df, node_neighborhood, storm_name, depth_thres
         avg_reduction_rows.append({'scenario': scenario, 'avg_duration_reduction_min': reduction.mean()})
     avg_reduction_summary = pd.DataFrame(peak_reduction_rows).merge(pd.DataFrame(avg_reduction_rows), on='scenario')
 
-    savepath1 = f'../processed/nodes/{storm_name}_V24_AllNodes_FloodDuration.csv'
-    savepath2 = f'../processed/nodes/{storm_name}_V24_AllNodes_AvgFloodDurationReduction.csv'
+    savepath1 = f'../outputdata/{storm_name}_V24_AllNodes_FloodDuration.csv'
+    savepath2 = f'../outputdata/{storm_name}_V24_AllNodes_AvgFloodDurationReduction.csv'
     flood_duration_wide.to_csv(savepath1, index=False)
     avg_reduction_summary.to_csv(savepath2, index=False)
     return flood_duration_wide, avg_reduction_summary
@@ -378,49 +332,34 @@ if __name__ == "__main__":
     node_ids = list_street_nodes(model)
     node_ids.remove('J509-S')  # exclude unwanted (patterson park) node
 
-    # Find street link names
-    model_path = scenarios['Base']
-    model = swmmio.Model(model_path)
-    link_ids = list_street_links(model)
-    link_ids.remove('C509-S')
-    link_ids.remove('C6-S')
-    link_ids.remove('C797-S')
-
     # Change storm execution
-    selected_storm = '2x_fullstorm_6_27_23'
+    selected_storm = '6_27_23'
     storm_ts = storms[selected_storm]
 
     # Run simulations
     scenario_node_results = {}
-    scenario_link_results = {}
 
     for scenario_name, inp_path in scenarios.items():
         print(f"Running scenario: {scenario_name} with storm {selected_storm}")
 
         tmp_inp = os.path.join(
             tempfile.gettempdir(),
-            f'{scenario_name}_{selected_storm}.inp')
+            f'Inner_Harbor_Model_V23_{scenario_name}.inp')
 
         storm_timeseries(inp_path, storm_ts, tmp_inp)
 
-        df_nodes, df_links = run_pyswmm(tmp_inp, node_ids, link_ids)
+        df_nodes = run_pyswmm(tmp_inp, node_ids)
         scenario_node_results[scenario_name] = df_nodes
-        scenario_link_results[scenario_name] = df_links
 
     # Combine into multiindex dataframes
     processed_nodes_df = pd.concat(scenario_node_results, names=['scenario'])
     processed_nodes_df.index.set_names(['scenario', 'row'], inplace=True)
 
-    processed_links_df = pd.concat(scenario_link_results, names=['scenario'])
-    processed_links_df.index.set_names(['scenario', 'row'], inplace=True)
-
     # Save raw simulation outputs
-    processed_nodes_df.to_csv(f'../processed/nodes/{selected_storm}_simV24_AllNodes.csv')
-    processed_links_df.to_csv(f'../processed/links/{selected_storm}_simV24_AllLinks.csv')
+    processed_nodes_df.to_csv(f'../outputdata/{selected_storm}_simV24_AllNodes.csv')
 
     # Run analysis directly on simulation results
     find_max_depth(processed_nodes_df, node_neighborhood, selected_storm)
     #find_max_flow(processed_nodes_df, node_neighborhood, selected_storm)
     find_max_vol(processed_nodes_df, node_neighborhood, selected_storm)
-    #find_max_velocty(processed_links_df, link_neighborhood, selected_storm)
     find_flood_duration(processed_nodes_df, node_neighborhood, selected_storm)

@@ -1,0 +1,4 @@
+scenario,node_name,peak_duration_reduction_min,avg_duration_reduction_min
+I,J640-S,785.0,46.54761904761905
+V,J624-S,15.0,-4.365079365079365
+V&I,J640-S,785.0,52.77777777777778
