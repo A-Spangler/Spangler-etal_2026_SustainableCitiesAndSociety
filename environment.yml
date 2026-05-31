@@ -1,4 +1,4 @@
-name: InnerHarbor_SWMMModel
+name: BSEC_SWMM
 channels:
   - conda-forge
   - defaults
@@ -28,9 +28,9 @@ dependencies:
   - brotli-python=1.0.9=py312h6d0c2b6_9
   - bzip2=1.0.8=hfdf4475_7
   - c-ares=1.34.5=hf13058a_0
-  - ca-certificates=2025.4.26=hbd8a1cb_0
+  - ca-certificates=2025.7.15=hecd8cb5_0
   - cairo=1.18.0=h99e66fa_0
-  - certifi=2025.4.26=py312hecd8cb5_0
+  - certifi=2025.8.3=py312hecd8cb5_0
   - cfitsio=4.4.0=h60fb419_1
   - contourpy=1.3.1=py312h1962661_0
   - cycler=0.11.0=pyhd3eb1b0_0
@@ -128,6 +128,7 @@ dependencies:
   - openpyxl=3.1.5=py312h46256e1_1
   - openssl=3.5.0=hc426f3f_1
   - pandas=2.2.3=py312h6d0c2b6_0
+  - pandas-stubs=2.2.3.250308=py312hecd8cb5_0
   - parso=0.8.4=py312hecd8cb5_0
   - pcre2=10.43=h0ad2156_0
   - pexpect=4.8.0=pyhd3eb1b0_3
@@ -140,6 +141,7 @@ dependencies:
   - proj=9.4.0=hf92c781_2
   - prompt-toolkit=3.0.43=py312hecd8cb5_0
   - prompt_toolkit=3.0.43=hd3eb1b0_0
+  - psutil=5.9.0=py312h46256e1_1
   - pthread-stubs=0.3=hdd91f34_1
   - ptyprocess=0.7.0=pyhd3eb1b0_2
   - pure_eval=0.2.2=pyhd3eb1b0_0
@@ -169,6 +171,7 @@ dependencies:
   - tk=8.6.13=h1abcd95_1
   - tornado=6.5.1=py312h46256e1_0
   - traitlets=5.14.3=py312hecd8cb5_0
+  - types-pytz=2022.4.0.0=py312hecd8cb5_1
   - tzcode=2025b=h6e16a3a_0
   - tzdata=2025b=h78e105d_0
   - unicodedata2=15.1.0=py312h46256e1_1
@@ -193,14 +196,18 @@ dependencies:
       - julian==0.14
       - networkx==3.5
       - numpy==2.2.6
+      - optype==0.17.1
       - packaging==25.0
       - pyshp==2.3.1
       - pyswmm==2.1.0
       - pytz==2025.2
       - pyyaml==6.0.2
+      - scipy-stubs==1.15.3.0
       - seaborn==0.13.2
+      - swmm-api==0.4.73
       - swmm-toolkit==0.15.5
       - swmmio==0.8.1
+      - tqdm==4.67.3
       - typing-extensions==4.14.0
       - urllib3==2.4.0
 prefix: /Users/aas6791/anaconda3/envs/InnerHarbor_SWMMModel

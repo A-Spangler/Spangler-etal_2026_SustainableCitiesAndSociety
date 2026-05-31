@@ -1,8 +1,8 @@
 """
-SWMM Uncertainty Quantification — Latin Hypercube Sampling
-===========================================================
-Simplified: Peak Depth on Surface Nodes Only via PySWMM Statistics
-Outputs: uq_results4.csv, uq_uncertainty4.csv, uq_sensitivity4.csv
+SWMM Uncertainty Quantification
+Latin Hypercube Sampling
+Peak Depth on surface nodes only
+Outputs: uq_results.csv, uq_uncertainty.csv, uq_sensitivity.csv
 """
 
 import argparse
@@ -155,8 +155,7 @@ def run_uq(inp_path: str, n_samples: int, seed: int):
         print(status)
 
     results_df = pd.DataFrame(all_rows)
-    results_df.to_csv("uq_results4.csv", index=False)
-    print("\n[UQ] Results saved → uq_results4.csv")
+    results_df.to_csv("outputdata/UQ/uq_results.csv", index=False)
 
     aggregated_uncertainty(results_df)
     sensitivity_analysis(results_df)
@@ -183,8 +182,7 @@ def aggregated_uncertainty(df: pd.DataFrame):
             "min_CV": round(np.min(cvs), 4),
             "node_count": len(cvs),
         }])
-        agg_df.to_csv("uq_uncertainty4.csv", index=False)
-        print("[AU] Uncertainty summary saved → uq_uncertainty4.csv")
+        agg_df.to_csv("outputdata/UQ/uq_uncertainty.csv", index=False)
 
 
 def sensitivity_analysis(df: pd.DataFrame):
@@ -211,12 +209,11 @@ def sensitivity_analysis(df: pd.DataFrame):
         sens_df = pd.DataFrame(rows)
         sens_df["abs_rho"] = sens_df["spearman_rho"].abs()
         sens_df = sens_df.sort_values(["output", "abs_rho"], ascending=[True, False]).drop(columns="abs_rho")
-        sens_df.to_csv("uq_sensitivity4.csv", index=False)
-        print("[SA] Sensitivity results saved → uq_sensitivity4.csv")
+        sens_df.to_csv("outputdata/UQ/uq_sensitivity.csv", index=False)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Simplified SWMM UQ")
+    parser = argparse.ArgumentParser(description="SWMM UQ")
     parser.add_argument("--inp", required=True, help="Path to base SWMM .inp file")
     parser.add_argument("--n", type=int, default=500, help="LHS samples")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")

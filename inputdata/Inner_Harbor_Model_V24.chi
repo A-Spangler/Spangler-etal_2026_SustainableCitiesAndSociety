@@ -1,0 +1,57 @@
+#PCSWMM project file
+#Please do not edit
+[General]
+PCSWMM.NET Version=7.7.3920
+SWMM5 Version=5.2.4
+Version=3
+Package Path=\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24.pcz
+Map EPSG=26918
+CS Name=NAD83 UTM zone 18N
+Last Report Date=05/01/2026 1:18:09 PM
+[2D]
+2DModeling=False
+[Project Summary]
+Compute Time=37 seconds
+Routing Error=0.173
+Runoff Error=-0.789
+Run Incomplete=False
+[Authors]
+Author0=Ava Spangler,46143.5538373843
+[Layers]
+layer0=Subcatchments
+layer1=Outlets
+layer2=Weirs
+layer3=Orifices
+layer4=Pumps
+layer5=Conduits
+layer6=Storages
+layer7=Dividers
+layer8=Outfalls
+layer9=Junctions
+[Graph]
+Plotting Position=Gringorten
+[Erosion]
+ErosionOn=False
+Use C TS=False
+Calculate LS=False
+Use TSS=False
+[Scenarios]
+"Scenarios0"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V22_inlets.inp",False,True,Inner_Harbor_Model_V22_inlets
+"Scenarios1"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V22_vacants.inp",False,False,Inner_Harbor_Model_V22_vacants
+"Scenarios2"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V22.inp",False,True,Inner_Harbor_Model_V22
+"Scenarios3"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V22_inlets+vacants.inp",False,False,Inner_Harbor_Model_V22_inlets+vacants
+"Scenarios4"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23.inp",False,False,Inner_Harbor_Model_V23
+"Scenarios5"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_inlets.inp",False,False,Inner_Harbor_Model_V23_inlets
+"Scenarios6"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_inlets+vacants.inp",False,False,Inner_Harbor_Model_V23_inlets+vacants
+"Scenarios7"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_vacants.inp",False,False,Inner_Harbor_Model_V23_vacants
+"Scenarios8"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_test.inp",False,False,Inner_Harbor_Model_V23_test
+"Scenarios9"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_test_UD.inp",False,False,Inner_Harbor_Model_V23_test_UD
+"Scenarios10"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_test_IC.inp",False,False,Inner_Harbor_Model_V23_test_IC
+"Scenarios11"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_test_ROW.inp",False,False,Inner_Harbor_Model_V23_test_ROW
+"Scenarios12"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V23_test_PP.inp",False,False,Inner_Harbor_Model_V23_test_PP
+"Scenarios13"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24_vacants.inp",False,False,Inner_Harbor_Model_V24_vacants
+"Scenarios14"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24_inlets+vacants.inp",False,False,Inner_Harbor_Model_V24_inlets+vacants
+"Scenarios15"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24_inlets.inp",False,False,Inner_Harbor_Model_V24_inlets
+"Scenarios16"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24.inp",False,False,Inner_Harbor_Model_V24
+"Scenarios17"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24_wet.inp",False,False,Inner_Harbor_Model_V24_wet
+"Scenarios18"="\\Mac\Home\Library\CloudStorage\OneDrive-ThePennsylvaniaStateUniversity\05 - Research\01 - BSEC Project\01 - SWMM models copy\Inner_Harbor_Model_V24_UncertAnalysis.inp",False,False,Inner_Harbor_Model_V24_UncertAnalysis

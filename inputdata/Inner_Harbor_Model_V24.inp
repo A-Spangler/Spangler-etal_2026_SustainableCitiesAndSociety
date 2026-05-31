@@ -49,7 +49,7 @@ DRY_ONLY         NO
 [RAINGAGES]
 ;;Name           Format    Interval SCF      Source    
 ;;-------------- --------- -------- -------- ----------
-Gage1            CUMULATIVE 00:05    0        TIMESERIES 6/27/2023       
+Gage1            CUMULATIVE 00:05    0        TIMESERIES 6/27/2023
 
 [SUBCATCHMENTS]
 ;;Name           Rain Gage        Outlet           Area     %Imperv  Width    %Slope   CurbLen  SnowPack        

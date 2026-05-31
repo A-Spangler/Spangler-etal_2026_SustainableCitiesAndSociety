@@ -1,0 +1,2 @@
+group,metric,mean_CV,max_CV,min_CV,node_count
+surface_nodes,max_depth,0.1593,0.7021,0.0207,126
