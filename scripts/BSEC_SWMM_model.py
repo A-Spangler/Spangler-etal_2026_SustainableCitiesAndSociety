@@ -63,22 +63,22 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
     depth_cols = [col for col in grouped_df.columns if col.endswith('_depth')]
     max_depth_df = grouped_df[depth_cols]
 
-    # Transform: Scenarios become columns, Nodes become rows
+    # Scenarios become columns, nodes become rows
     max_depth_df = max_depth_df.reset_index()
     max_depth_df = max_depth_df.set_index('scenario').T
     max_depth_df = max_depth_df.reset_index().rename(columns={'index': 'node_name'})
     max_depth_df = max_depth_df.reset_index(drop=True)
 
-    # 2. Add Metadata
+    # Add metadata
     max_depth_df['node_id'] = max_depth_df['node_name'].str.extract(r'([^_]+)')[0]
     max_depth_df['neighborhood'] = max_depth_df['node_id'].map(lambda x: node_neighborhood[x][0])
     max_depth_df['historic_stream'] = max_depth_df['node_id'].map(lambda x: node_neighborhood[x][1])
 
-    # 3. DYNAMIC COLUMN IDENTIFICATION
+    # ID columns
     metadata_cols = ['node_name', 'node_id', 'neighborhood', 'historic_stream']
     scenario_names = [col for col in max_depth_df.columns if col not in metadata_cols]
 
-    # 4. Scenario Summary (Absolute Maxes) — all scenarios including Base
+    # evaluate max depths of all scenarios
     peak_depth_rows = []
     avg_depth_rows = []
     for scenario in scenario_names:
@@ -92,32 +92,20 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
     peak_depth_summary = pd.DataFrame(peak_depth_rows)
     avg_depth_summary = pd.DataFrame(avg_depth_rows)
 
-    # 5. Relative Change (Scenario - Base)
+    # compute relative change (Scenario - Base)
     relative_change_in_depth = max_depth_df[scenario_names].copy()
 
     if 'Base' in relative_change_in_depth.columns:
         relative_change_in_depth = relative_change_in_depth.sub(max_depth_df['Base'], axis=0)
-    else:
-        print("Warning: 'Base' scenario not found. Relative changes will be scenario values.")
 
     for col in metadata_cols:
         relative_change_in_depth[col] = max_depth_df[col]
 
-    # 6. Relative Summary — exclude Base (Base - Base = 0 everywhere, metrics are meaningless)
+    # summarize depth results
     non_base_scenarios = [s for s in scenario_names if s != 'Base']
 
     print("Scenarios in relative_change_in_depth:", relative_change_in_depth.columns.tolist())
     print("Non-base scenarios:", non_base_scenarios)
-
-    for scenario in non_base_scenarios:
-        print(f"\n--- {scenario} ---")
-        print("dtype:", relative_change_in_depth[scenario].dtype)
-        print("non-zero count:", (relative_change_in_depth[scenario] != 0).sum())
-        print("abs max value:", relative_change_in_depth[scenario].abs().max())
-        print("abs max index:", relative_change_in_depth[scenario].abs().idxmax())
-        print("node at that index:",
-              relative_change_in_depth.loc[relative_change_in_depth[scenario].abs().idxmax(), 'node_name'])
-        print(relative_change_in_depth[scenario].abs().nlargest(5))
 
     rel_depth_rows = []
     for scenario in non_base_scenarios:
@@ -138,28 +126,28 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
 
         rel_depth_rows.append({
             'scenario': scenario,
-            'avg_peak_change_m': avg_change,
-            'peak_abs_change_m': max_val,
-            'peak_abs_change_node': max_node,
-            'base_depth_abs_m': base_depth_abs,
-            'pct_change_abs': pct_change_abs,
-            'peak_increase_m': incr,
-            'peak_increase_node': incr_node,
-            'base_depth_incr_m': base_depth_incr,
-            'pct_change_incr': pct_change_incr,
+            'avg_peak_change_m': avg_change, # change in average depth (flood reduction) at moment of peak flooding
+            'peak_abs_change_m': max_val, # single largest change in depth at moment of peak flooding, new scenario
+            'peak_abs_change_node': max_node, # location of single largest change in depth at moment of peak flooding
+            'base_depth_abs_m': base_depth_abs, # single largest change in depth at moment of peak flooding, base scenario
+            'pct_change_abs': pct_change_abs, # % change largest flood depth
+            'peak_increase_m': incr, # single largest deterioration (deeper flooding) in depth at moment of peak flooding
+            'peak_increase_node': incr_node, # location of deterioration
+            'base_depth_incr_m': base_depth_incr, # depths at deterioration location in base scenariio
+            'pct_change_incr': pct_change_incr, # % change in deterioration in depth at moment of peak flooding
         })
     rel_depth_summary = pd.DataFrame(rel_depth_rows)
 
-    # 7. Save Files
-
+    # save
     max_depth_df.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_MaxDepth.csv', index=False)
     relative_change_in_depth.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeDepth.csv', index=False)
-    peak_depth_summary.merge(avg_depth_summary, on='scenario').to_csv(
-        f'../outputdata/{storm_name}_V24_AllNodes_DepthSummary.csv', index=False)
+    peak_depth_summary.merge(avg_depth_summary, on='scenario').to_csv(f'../outputdata/{storm_name}_V24_AllNodes_DepthSummary.csv', index=False)
     rel_depth_summary.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeDepthSummary.csv', index=False)
 
     return max_depth_df, relative_change_in_depth
 
+
+   # evaluate max vol of all scenarios
 def find_max_vol(processed_df, node_neighborhood_df, storm_name):
     grouped_df = processed_df.groupby(level=0).max()
 
@@ -221,6 +209,7 @@ def find_max_vol(processed_df, node_neighborhood_df, storm_name):
         })
     rel_vol_summary = pd.DataFrame(rel_vol_rows)
 
+    # save
     savepath1 = f'../outputdata/{storm_name}_V24_AllNodes_MaxVolume.csv'
     savepath2 = f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolume.csv'
     savepath3 = f'../outputdata/{storm_name}_V24_AllNodes_VolSummary.csv'
