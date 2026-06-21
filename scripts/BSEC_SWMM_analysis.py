@@ -1,7 +1,8 @@
 # By: Ava Spangler
 # Date: 8/12/2025
 # Description: This script runs SWMM simulations using pyswmm, processes the results into dataframes, and analyzes them.
-# note: To simulate different storm conditions, update selected_storm in the EXECUTION block. Storm must exist in .inp.
+# note: To simulate different storm conditions, update selected_storm in the EXECUTION block with a storm name already existing in the inp.
+# Storm name MUST exist in .inp to run here.
 
 # IMPORTS --------------------------------------------------------------------------------------------------------------
 import os
@@ -146,78 +147,93 @@ def find_max_depth(processed_df, node_neighborhood, storm_name):
 
     return max_depth_df, relative_change_in_depth
 
-
-   # evaluate max vol of all scenarios
-def find_max_vol(processed_df, node_neighborhood_df, storm_name):
+def find_max_vol(processed_df, node_neighborhood, storm_name):
+    # 1. Group and Pivot Logic
     grouped_df = processed_df.groupby(level=0).max()
-
     vol_cols = [col for col in grouped_df.columns if col.endswith('_volume')]
     max_vol_df = grouped_df[vol_cols]
 
+    # Scenarios become columns, nodes become rows
     max_vol_df = max_vol_df.reset_index()
     max_vol_df = max_vol_df.set_index('scenario').T
     max_vol_df = max_vol_df.reset_index().rename(columns={'index': 'node_name'})
+    max_vol_df = max_vol_df.reset_index(drop=True)
+
+    # Add metadata
     max_vol_df['node_id'] = max_vol_df['node_name'].str.extract(r'([^_]+)')[0]
     max_vol_df['neighborhood'] = max_vol_df['node_id'].map(lambda x: node_neighborhood[x][0])
     max_vol_df['historic_stream'] = max_vol_df['node_id'].map(lambda x: node_neighborhood[x][1])
 
+    # ID columns
+    metadata_cols = ['node_name', 'node_id', 'neighborhood', 'historic_stream']
+    scenario_names = [col for col in max_vol_df.columns if col not in metadata_cols]
+
+    # evaluate max volumes of all scenarios
     peak_vol_rows = []
-    for scenario in max_vol_df.columns[1:-3]:
+    avg_vol_rows = []
+    for scenario in scenario_names:
         max_val = max_vol_df[scenario].max()
         max_node = max_vol_df.loc[max_vol_df[scenario].idxmax(), 'node_name']
-        peak_vol_rows.append({'scenario': scenario, 'node_name': max_node, 'peak_vol_m3': max_val})
-    peak_vol_summary = pd.DataFrame(peak_vol_rows)
+        peak_vol_rows.append({'scenario': scenario, 'node_name': max_node, 'peak_vol_m': max_val})
 
-    avg_vol_rows = []
-    for scenario in max_vol_df.columns[1:-3]:
         avg_val = max_vol_df[scenario].mean()
-        avg_vol_rows.append({'scenario': scenario, 'avg_vol_m3': avg_val})
+        avg_vol_rows.append({'scenario': scenario, 'avg_vol_m': avg_val})
+
+    peak_vol_summary = pd.DataFrame(peak_vol_rows)
     avg_vol_summary = pd.DataFrame(avg_vol_rows)
 
-    relative_change_in_vol = max_vol_df.iloc[:, 1:5].copy() #TODO fix hardcoding in the column indices for subtraction, changes w scenarios
-    relative_change_in_vol = relative_change_in_vol.sub(max_vol_df['Base'], axis = 0)
-    relative_change_in_vol['node_name'] = max_vol_df['node_name']
-    relative_change_in_vol['node_id'] = max_vol_df['node_id']
-    relative_change_in_vol['neighborhood'] = max_vol_df['neighborhood']
+    # compute relative change (Scenario - Base)
+    relative_change_in_vol = max_vol_df[scenario_names].copy()
+
+    if 'Base' in relative_change_in_vol.columns:
+        relative_change_in_vol = relative_change_in_vol.sub(max_vol_df['Base'], axis=0)
+
+    for col in metadata_cols:
+        relative_change_in_vol[col] = max_vol_df[col]
+
+    # summarize voluume results
+    non_base_scenarios = [s for s in scenario_names if s != 'Base']
+
+    print("Scenarios in relative_change_in_vol:", relative_change_in_vol.columns.tolist())
+    print("Non-base scenarios:", non_base_scenarios)
 
     rel_vol_rows = []
-    for scenario in relative_change_in_vol.columns[0:-3]:
+    for scenario in non_base_scenarios:
+        avg_change = relative_change_in_vol[scenario].mean()
+
         incr = relative_change_in_vol[scenario].max()
         incr_idx = relative_change_in_vol[scenario].idxmax()
         incr_node = relative_change_in_vol.loc[incr_idx, 'node_name']
-
-        base_depth_incr = max_vol_df.loc[incr_idx, 'Base']
-        pct_change_incr = (incr / base_depth_incr * 100) if base_depth_incr > 0 else float('inf')
+        base_vol_incr = max_vol_df.loc[incr_idx, 'Base']
+        pct_change_incr = (incr / base_vol_incr * 100) if base_vol_incr > 0 else float('inf')
 
         abs_vals = relative_change_in_vol[scenario].abs()
         idx_abs_max = abs_vals.idxmax()
         max_val = relative_change_in_vol.loc[idx_abs_max, scenario]
         max_node = relative_change_in_vol.loc[idx_abs_max, 'node_name']
-
         base_vol_abs = max_vol_df.loc[idx_abs_max, 'Base']
         pct_change_abs = (max_val / base_vol_abs * 100) if base_vol_abs > 0 else float('inf')
 
-        avg_change_vol = relative_change_in_vol[scenario].mean()
-
         rel_vol_rows.append({
             'scenario': scenario,
-            'avg_peak_change_m3': avg_change_vol,
-            'peak_abs_vol_change_m3': max_val, 'peak_abs_change_node': max_node,
-            'base_vol_abs_m3': base_vol_abs, 'pct_change_abs': pct_change_abs,
-            'peak_vol_increase_m3': incr, 'peak_increase_node': incr_node,
-            'base_vol_incr_m3': base_depth_incr, 'pct_change_incr': pct_change_incr,
+            'avg_peak_change_m': avg_change, # change in average vol (flood reduction) at moment of peak flooding
+            'peak_abs_change_m': max_val, # single largest change in vol at moment of peak flooding, new scenario
+            'peak_abs_change_node': max_node, # location of single largest change in vol at moment of peak flooding
+            'base_vol_abs_m': base_vol_abs, # single largest change in vol at moment of peak flooding, base scenario
+            'pct_change_abs': pct_change_abs, # % change largest flood vol
+            'peak_increase_m': incr, # single largest deterioration (deeper flooding) in vol at moment of peak flooding
+            'peak_increase_node': incr_node, # location of deterioration
+            'base_vol_incr_m': base_vol_incr, # vols at deterioration location in base scenariio
+            'pct_change_incr': pct_change_incr, # % change in deterioration in vol at moment of peak flooding
         })
     rel_vol_summary = pd.DataFrame(rel_vol_rows)
 
     # save
-    savepath1 = f'../outputdata/{storm_name}_V24_AllNodes_MaxVolume.csv'
-    savepath2 = f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolume.csv'
-    savepath3 = f'../outputdata/{storm_name}_V24_AllNodes_VolSummary.csv'
-    savepath4 = f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolSummary.csv'
-    max_vol_df.to_csv(savepath1)
-    relative_change_in_vol.to_csv(savepath2)
-    peak_vol_summary.merge(avg_vol_summary, on='scenario').to_csv(savepath3, index=False)
-    rel_vol_summary.to_csv(savepath4, index=False)
+    max_vol_df.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_MaxVol.csv', index=False)
+    relative_change_in_vol.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeVol.csv', index=False)
+    peak_vol_summary.merge(avg_vol_summary, on='scenario').to_csv(f'../outputdata/{storm_name}_V24_AllNodes_VolSummary.csv', index=False)
+    rel_vol_summary.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolSummary.csv', index=False)
+
     return max_vol_df, relative_change_in_vol
 
 ###### EXECUTION ##### ------------------------------------------------------------------------------------------------------------
@@ -233,10 +249,10 @@ if __name__ == "__main__":
     model_path = scenarios['Base']
     model = swmmio.Model(model_path)
     node_ids = list_street_nodes(model)
-    node_ids.remove('J509-S')  # exclude unwanted (patterson park) node
+    node_ids.remove('J509-S')  # exclude patterson park pond node - don't want to measure water level in pond
 
     # Change storm execution
-    selected_storm = '6_27_23'
+    selected_storm = '6_27_23' # CHANGE to a storm name ALREADY in your inp
     storm_ts = storms[selected_storm]
 
     # Run simulations

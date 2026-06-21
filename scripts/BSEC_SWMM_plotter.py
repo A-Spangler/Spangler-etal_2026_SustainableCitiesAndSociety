@@ -1,7 +1,7 @@
 # By: Ava Spangler
-# Date: 6/26/2025
+# Date: 6/21/2026
 # Description: This code takes in processed and analyzed data and creates visualizations
-
+# NOTE: if you want to run different scenarios, change the column headers scenario names in 'plot_cols'
 # IMPORTS --------------------------------------------------------------------------------------------------------------
 import pandas as pd
 import os
@@ -104,8 +104,8 @@ def volume_stackplot(relative_vol_df, name):
 
     plt.tight_layout()
     #plt.show()
-    save_path = f'../plots/nodes/{name}_relative_stackplot_volume_V24.png'
-    svg_path = f'../plots/nodes/{name}_relative_stackplot_volume_V24.svg'
+    save_path = f'../figures{name}_relative_stackplot_volume_V24.png'
+    svg_path = f'../figures/{name}_relative_stackplot_volume_V24.svg'
     plt.savefig(save_path)
     plt.savefig(svg_path)
 
@@ -115,13 +115,13 @@ if __name__ == "__main__":
 
     max_depth_df = pd.read_csv('../outputdata/6_27_23_V24_AllNodes_MaxDepth.csv')
     relative_depth_df = pd.read_csv('../outputdata/6_27_23_V24_AllNodes_RelativeDepth.csv').drop(['Unnamed: 0'], axis=1)
-    relative_volume_df = pd.read_csv('../processed/nodes/6_27_23_V24_AllNodes_RelativeVolume.csv').drop(['Unnamed: 0'], axis=1)
-    max_volume_df = pd.read_csv( '../processed/nodes/6_27_23_V24_AllNodes_MaxVolume.csv').drop(['Unnamed: 0'], axis=1)
-    depth_ts_df = pd.read_csv('../processed/nodes/6_27_23_simV24_AllNodes.csv')
+    relative_volume_df = pd.read_csv('../outputdata/6_27_23_V24_AllNodes_RelativeVolume.csv').drop(['Unnamed: 0'], axis=1)
+    max_volume_df = pd.read_csv( '../outputdata/6_27_23_V24_AllNodes_MaxVolume.csv').drop(['Unnamed: 0'], axis=1)
+    depth_ts_df = pd.read_csv('../outputdata/6_27_23_simV24_AllNodes.csv')
 
     storm_name = '6_27_23'
     #execute, note 'relative' functions means the result is relative to base case
     depth_stackplot(relative_depth_df, storm_name)
     volume_stackplot(relative_volume_df, storm_name)
-    node_neighborhood_df = pd.read_excel('../processed/nodes/Node_Neighborhoods.xlsx')
+    node_neighborhood_df = pd.read_excel('../inputdata/Node_Neighborhoods.xlsx')
 
