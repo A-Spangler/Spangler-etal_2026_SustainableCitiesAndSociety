@@ -209,7 +209,7 @@ def sensitivity_analysis(df: pd.DataFrame):
         sens_df = pd.DataFrame(rows)
         sens_df["abs_rho"] = sens_df["spearman_rho"].abs()
         sens_df = sens_df.sort_values(["output", "abs_rho"], ascending=[True, False]).drop(columns="abs_rho")
-        sens_df.to_csv("outputdata/UQ/uq_sensitivity.csv", index=False)
+        sens_df.to_csv("../outputdata/UQ/uq_sensitivity.csv", index=False)
 
 
 if __name__ == "__main__":

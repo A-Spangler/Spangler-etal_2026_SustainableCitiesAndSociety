@@ -47,10 +47,10 @@ Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty,
 1. Install the software components required to conduct the experiment from [contributing modeling software](#contributing-modeling-software).
 2. Install all package dependencies listed in `environment.yml` using `conda env create --file environment.yml`
 3. Activate environment using `conda activate BSEC_SWMM`
-4. Download the supporting `inputdata` required to conduct the experiment, all SWMM .inp and associated files.
+4. Clone this repository to access the required `inputdata` and scripts.
 5. Run the `BSEC_SWMM_analysis.py` script in the `scripts` directory to re-create the Baltimore flooding adaptation experiment.
 6. Run the `BSEC_SWMM_UQ.py` script in the `scripts` directory to re-create the model uncertainty analysis.
-   -> Please note that this code can be executed via command line with `python BSEC_SWMM_uncertainty.py --inp Inner_Harbor_Model_V24.inp --n 500` for convenience on HPC environments.
+   -> Please note that this code can be executed via command line with `python scripts/BSEC_SWMM_UQ.py --inp Inner_Harbor_Model_V24.inp --n 500` for convenience on HPC environments.
 
 ## Reproduce my figures
 1. Run the `BSEC_SWMM_plotter.py` script found in the `scripts` directory to reproduce the figures used in this publication. This script will prepare .csv files for Fig6, which can then be imported to GIS for visualization.
