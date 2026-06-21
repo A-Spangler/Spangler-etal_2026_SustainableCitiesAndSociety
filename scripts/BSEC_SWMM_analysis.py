@@ -229,10 +229,10 @@ def find_max_vol(processed_df, node_neighborhood, storm_name):
     rel_vol_summary = pd.DataFrame(rel_vol_rows)
 
     # save
-    max_vol_df.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_MaxVol.csv', index=False)
-    relative_change_in_vol.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeVol.csv', index=False)
-    peak_vol_summary.merge(avg_vol_summary, on='scenario').to_csv(f'../outputdata/{storm_name}_V24_AllNodes_VolSummary.csv', index=False)
-    rel_vol_summary.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolSummary.csv', index=False)
+    max_vol_df.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_MaxVolume.csv', index=False)
+    relative_change_in_vol.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolume.csv', index=False)
+    peak_vol_summary.merge(avg_vol_summary, on='scenario').to_csv(f'../outputdata/{storm_name}_V24_AllNodes_VolumeSummary.csv', index=False)
+    rel_vol_summary.to_csv(f'../outputdata/{storm_name}_V24_AllNodes_RelativeVolumeSummary.csv', index=False)
 
     return max_vol_df, relative_change_in_vol
 
