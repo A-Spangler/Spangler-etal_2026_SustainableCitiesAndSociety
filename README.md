@@ -6,7 +6,7 @@
 
 Ava Spangler<sup>1,2\*</sup>, Antonia Hadjimichael<sup>1,2</sup>, Carlin Blash<sup>1</sup>, Mahsa Adib<sup>3,4</sup>, Hong Wu<sup>3</sup>, Mark Cameron<sup>5</sup>, Claire Welty<sup>6,7</sup>, Doris Minor-Terrell<sup>8</sup>, Benjamin Zaitchik<sup>9</sup>.
 
-- <sup>1 </sup>The Pennsylvania State University; Earth and Environmental Systems Institute, University Park, PA, USA.
+- <sup>1 </sup>The Pennsylvania State University; Department of Geosciences, University Park, PA, USA.
 - <sup>2 </sup> The Pennsylvania State University; Earth and Environmental Systems Institute, University Park PA, USA.
 - <sup>3 </sup> The Pennsylvania State University; Department of Landscape Architecture, University Park, PA, USA.
 - <sup>4 </sup> Michigan State University; School of Planning, Design and Construction, East Lansing, MI, USA.
