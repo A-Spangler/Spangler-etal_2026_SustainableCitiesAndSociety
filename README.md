@@ -1,4 +1,4 @@
-[![DOI](https://data.msdlive.org.org)](https://doi.org/10.57931/3988779)
+[![DOI](https://img.shields.io/badge/DOI-10.57931%2F3988779-blue)](https://doi.org/10.57931/3988779)
 
 # Spangler-etal_2026_SustainableCitiesAndSociety
 
