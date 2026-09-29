@@ -1,4 +1,4 @@
-[![DOI](https://doi.org/10.57931/3988779)
+[![DOI](https://doi.org/10.57931/3988779)]
 
 # Spangler-etal_2026_SustainableCitiesAndSociety
 
