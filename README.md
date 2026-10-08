@@ -33,7 +33,7 @@ Spangler, A., Hadjimichael, A., Blash, C., Adib, M., Wu, H., Cameron, M., Welty,
 - Inlet Cleaning scenario - `inputdata/Inner_Harbor_Model_V24_inlets.inp`
 - Vacant Lot Greening scenario - `inputdata/Inner_Harbor_Model_V24_vacants.inp`
 - Both Scenari0 - `inputdata/Inner_Harbor_Model_V24_inlets+vacants.inp`
-- Please note that associated report (.rpt) and other files are also provided for reference.
+- Please note that associated report (.rpt) and other files are also provided for reference. This model version has been updated from the original published version to correct an elevation discrepancy. The results vary slightly in some locations from the published version.
 
 ## Contributing Modeling Software  
 | Software      | Version       | Repository    | DOI           |
