@@ -114,7 +114,7 @@ if __name__ == "__main__":
     # load dfs
 
     max_depth_df = pd.read_csv('../outputdata/6_27_23_V24_AllNodes_MaxDepth.csv')
-    relative_depth_df = pd.read_csv('../outputdata/6_27_23_V24_AllNodes_RelativeDepth.csv').drop(['Unnamed: 0'], axis=1)
+    relative_depth_df = pd.read_csv('../outputdata/6_27_23_V25_AllNodes_RelativeDepth.csv').drop(['Unnamed: 0'], axis=1)
     relative_volume_df = pd.read_csv('../outputdata/6_27_23_V24_AllNodes_RelativeVolume.csv').drop(['Unnamed: 0'], axis=1)
     max_volume_df = pd.read_csv( '../outputdata/6_27_23_V24_AllNodes_MaxVolume.csv').drop(['Unnamed: 0'], axis=1)
     depth_ts_df = pd.read_csv('../outputdata/6_27_23_simV24_AllNodes.csv')
